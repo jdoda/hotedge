@@ -2,7 +2,7 @@
   "name": "Hot Edge",
   "description": "Replaces the top-left hot corner with a bottom hot edge.",
   "uuid": "hotedge@jonathan.jdoda.ca",
-  "shell-version": [
-    "40"
-  ]
+  "version": 1,
+  "shell-version": ["40"],
+  "url": "https://github.com/jdoda/hotedge"
 }
