@@ -190,9 +190,9 @@ function updateHotEdges() {
             return;
         }
 
-        // build new hot bottoms
+        // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-            log('Building Hot Bottom on monitor ' + i);
+            log('Building Hot Edge on monitor ' + i);
             let monitor = Main.layoutManager.monitors[i];
             let leftX = monitor.x;
             let rightX = monitor.x + monitor.width;
@@ -202,7 +202,7 @@ function updateHotEdges() {
             let haveBottom = true;
 
             // Check if we have a bottom.
-            // I.e. if there is no monitor directly below
+            // i.e. if there is no monitor directly below
             for (let j = 0; j < Main.layoutManager.monitors.length; j++) {
                 if (i == j) {
                     continue;
@@ -211,7 +211,8 @@ function updateHotEdges() {
                 let otherLeftX = otherMonitor.x;
                 let otherRightX = otherMonitor.x + otherMonitor.width;
                 let otherTopY = otherMonitor.y;
-                if (otherTopY > bottomY && otherLeftX < rightX && otherRightX > leftX) {
+                log('leftX ' + leftX + ' rightX ' + rightX + ' bottomY ' + bottomY + ' otherLeftX ' + otherLeftX + ' otherRightX ' + otherRightX + ' otherTopY ' + otherTopY)
+                if (otherTopY >= bottomY && otherLeftX < rightX && otherRightX > leftX) {
                     haveBottom = false;
                 }
             }
