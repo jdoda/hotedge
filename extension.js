@@ -31,15 +31,10 @@ class Extension {
     }
 
     enable() {
-        log('Enabling Hot Edge');
         this._handlerId = Main.layoutManager.connect('hot-corners-changed', () => {
-            log('Received hot-corners-changed event.');
             updateHotEdges();
         });
-        log('Connected handler, handlerId = ' + this._handlerId);
-        log('What do we have here? ' + Main.layoutManager.hotCorners);
         updateHotEdges();
-        log('And now? ' + Main.layoutManager.hotCorners);
     }
 
     disable() {
@@ -55,7 +50,6 @@ function init() {
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
     _init(layoutManager, monitor, x, y) {
-        log('HotEdge._init ' + layoutManager + ' ' + monitor + ' ' + x + ' ' + y);
         super._init();
 
         // We use this flag to mark the case where the user has entered the
@@ -81,7 +75,6 @@ class HotEdge extends Clutter.Actor {
     }
 
     setBarrierSize(size) {
-        log('HotEdge.setBarrierSize ' + size);
         if (this._barrier) {
             this._pressureBarrier.removeBarrier(this._barrier);
             this._barrier.destroy();
@@ -128,7 +121,6 @@ class HotEdge extends Clutter.Actor {
     }
 
     _onDestroy() {
-        log('Destroying Hot Edge')
         this.setBarrierSize(0);
         this._pressureBarrier.destroy();
         this._pressureBarrier = null;
@@ -176,7 +168,6 @@ class HotEdge extends Clutter.Actor {
 
 
 function updateHotEdges() {
-        log('Updating Hot Edge');
 
         // destroy old hot corners / edges
         Main.layoutManager.hotCorners.forEach(corner => {
@@ -186,13 +177,11 @@ function updateHotEdges() {
         Main.layoutManager.hotCorners = [];
 
         if (!Main.layoutManager._interfaceSettings.get_boolean('enable-hot-corners')) {
-            log('Hot Corners Disabled');
             return;
         }
 
         // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-            log('Building Hot Edge on monitor ' + i);
             let monitor = Main.layoutManager.monitors[i];
             let leftX = monitor.x;
             let rightX = monitor.x + monitor.width;
@@ -211,7 +200,6 @@ function updateHotEdges() {
                 let otherLeftX = otherMonitor.x;
                 let otherRightX = otherMonitor.x + otherMonitor.width;
                 let otherTopY = otherMonitor.y;
-                log('leftX ' + leftX + ' rightX ' + rightX + ' bottomY ' + bottomY + ' otherLeftX ' + otherLeftX + ' otherRightX ' + otherRightX + ' otherTopY ' + otherTopY)
                 if (otherTopY >= bottomY && otherLeftX < rightX && otherRightX > leftX) {
                     haveBottom = false;
                 }
