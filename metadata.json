@@ -1,0 +1,8 @@
+{
+  "name": "Hot Edge",
+  "description": "Replaces the top-left hot corner with a bottom hot edge.",
+  "uuid": "hotedge@jonathan.jdoda.ca",
+  "shell-version": [
+    "40"
+  ]
+}
