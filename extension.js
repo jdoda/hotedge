@@ -50,6 +50,7 @@ function init() {
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
     _init(layoutManager, monitor, x, y) {
+        log('HotEdge: Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
         // We use this flag to mark the case where the user has entered the
@@ -83,6 +84,7 @@ class HotEdge extends Clutter.Actor {
 
         if (size > 0) {
             size = this._monitor.width // We always want the size to be the full width of the monitor.
+            log('HotEdge: Setting barrier size to ' + size);
             this._barrier = new Meta.Barrier({ display: global.display,
                                                        x1: this._x, x2: this._x + size, y1: this._y, y2: this._y,
                                                        directions: Meta.BarrierDirection.NEGATIVE_Y }); 
@@ -92,6 +94,7 @@ class HotEdge extends Clutter.Actor {
 
     _setupFallbackEdgeIfNeeded(layoutManager) {
         if (!global.display.supports_extended_barriers()) {
+            log('HotEdge: Display does not support extended barriers, falling back to old method.');
             this.set({
                 name: 'hot-edge-environs',
                 x: this._x,
@@ -168,11 +171,13 @@ class HotEdge extends Clutter.Actor {
 
 
 function updateHotEdges() {
-
+        log('HotEdge: Updating hot edges.');
+        
         // destroy old hot corners / edges
         Main.layoutManager.hotCorners.forEach(corner => {
-            if (corner)
+            if (corner) {
                 corner.destroy();
+            }
         });
         Main.layoutManager.hotCorners = [];
 
@@ -206,10 +211,12 @@ function updateHotEdges() {
             }
 
             if (haveBottom) {
+                log('HotEdge: Monitor ' + i + ' has a bottom, adding a hot edge.');
                 let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY);
                 edge.setBarrierSize(size);
                 Main.layoutManager.hotCorners.push(edge);
             } else {
+                log('HotEdge: Monitor ' + i + ' does not have a bottom, not adding a hot edge.');
                 Main.layoutManager.hotCorners.push(null);
             }
         }
