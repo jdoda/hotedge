@@ -172,19 +172,6 @@ class HotEdge extends Clutter.Actor {
 
 function updateHotEdges() {
         log('HotEdge: Updating hot edges.');
-        
-        // destroy old hot corners / edges
-        Main.layoutManager.hotCorners.forEach(corner => {
-            if (corner) {
-                corner.destroy();
-            }
-        });
-        Main.layoutManager.hotCorners = [];
-
-        if (!Main.layoutManager._interfaceSettings.get_boolean('enable-hot-corners')) {
-            return;
-        }
-
         // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
             let monitor = Main.layoutManager.monitors[i];
