@@ -96,30 +96,14 @@ class HotEdge extends Clutter.Actor {
         if (!global.display.supports_extended_barriers()) {
             log('HotEdge: Display does not support extended barriers, falling back to old method.');
             this.set({
-                name: 'hot-edge-environs',
+                name: 'hot-edge',
                 x: this._x,
-                y: this._y - 3,
+                y: this._y - 1,
                 width: this._monitor.width,
-                height: 3,
+                height: 1,
                 reactive: true,
             });
-
-            this._edge = new Clutter.Actor({ name: 'hot-edge',
-                                               width: this._monitor.width,
-                                               height: 1,
-                                               opacity: 0,
-                                               reactive: true });
-            this._edge._delegate = this;
-
-            this.add_child(this._edge);
             layoutManager.addChrome(this);
-
-            this._edge.set_position(0, this.height);
-
-            this._edge.connect('enter-event',
-                                 this._onEdgeEntered.bind(this));
-            this._edge.connect('leave-event',
-                                 this._onEdgeLeft.bind(this));
         }
     }
 
@@ -147,7 +131,7 @@ class HotEdge extends Clutter.Actor {
         return DND.DragMotionResult.CONTINUE;
     }
 
-    _onEdgeEntered() {
+    vfunc_enter_event(crossingEvent) {
         if (!this._entered) {
             this._entered = true;
             this._toggleOverview();
@@ -155,16 +139,8 @@ class HotEdge extends Clutter.Actor {
         return Clutter.EVENT_PROPAGATE;
     }
 
-    _onEdgeLeft(actor, event) {
-        if (event.get_related() != this)
-            this._entered = false;
-        // Consume event, otherwise this will confuse onEnvironsLeft
-        return Clutter.EVENT_STOP;
-    }
-
     vfunc_leave_event(crossingEvent) {
-        if (crossingEvent.related != this._edge)
-            this._entered = false;
+        this._entered = false;
         return Clutter.EVENT_PROPAGATE;
     }
 });
