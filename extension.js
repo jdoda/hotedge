@@ -19,29 +19,79 @@
 /* exported init */
 
 const { Clutter, GObject, GLib, Meta, Shell} = imports.gi;
+const ExtensionUtils = imports.misc.extensionUtils;
 const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
-const HOT_EDGE_PRESSURE_THRESHOLD = 100; // pixels
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
-const HOT_EDGE_FALLBACK_TIMEOUT = 200; // ms
 
 
 class Extension {
     constructor() {
-        this._handlerId = null;
+        this._edgeHandlerId = null;
+        this._settingsHandlerId = null;
+        this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.hotedge');
     }
 
     enable() {
-        this._handlerId = Main.layoutManager.connect('hot-corners-changed', () => {
-            updateHotEdges();
-        });
-        updateHotEdges();
+        this._settingsHandlerId = this._settings.connect('changed', this._onSettingsChange.bind(this));
+        this._edgeHandlerId = Main.layoutManager.connect('hot-corners-changed', this._updateHotEdges.bind(this));
+        
+        Main.layoutManager._updateHotCorners();
     }
 
     disable() {
-        Main.layoutManager.disconnect(this._handlerId);
+        Main.layoutManager.disconnect(this._edgeHandlerId);
+        this._settings.disconnect(this._settingsHandlerId);
+        
         Main.layoutManager._updateHotCorners();
+    }
+    
+    _onSettingsChange() {
+        Main.layoutManager._updateHotCorners();
+    }
+    
+    _updateHotEdges() {
+        log('HotEdge: Updating hot edges.');
+        let pressureThreshold = this._settings.get_uint('pressure-threshold');
+        let fallbackTimeout = this._settings.get_uint('fallback-timeout');
+        log('HotEdge: pressureThreshold ' + pressureThreshold);
+        
+        // build new hot edges
+        for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
+            let monitor = Main.layoutManager.monitors[i];
+            let leftX = monitor.x;
+            let rightX = monitor.x + monitor.width;
+            let bottomY = monitor.y + monitor.height;
+            let size = monitor.width;
+
+            let haveBottom = true;
+
+            // Check if we have a bottom.
+            // i.e. if there is no monitor directly below
+            for (let j = 0; j < Main.layoutManager.monitors.length; j++) {
+                if (i == j) {
+                    continue;
+                }
+                let otherMonitor = Main.layoutManager.monitors[j];
+                let otherLeftX = otherMonitor.x;
+                let otherRightX = otherMonitor.x + otherMonitor.width;
+                let otherTopY = otherMonitor.y;
+                if (otherTopY >= bottomY && otherLeftX < rightX && otherRightX > leftX) {
+                    haveBottom = false;
+                }
+            }
+
+            if (haveBottom) {
+                log('HotEdge: Monitor ' + i + ' has a bottom, adding a hot edge.');
+                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout);
+                edge.setBarrierSize(size);
+                Main.layoutManager.hotCorners.push(edge);
+            } else {
+                log('HotEdge: Monitor ' + i + ' does not have a bottom, not adding a hot edge.');
+                Main.layoutManager.hotCorners.push(null);
+            }
+        }
     }
 }
 
@@ -49,19 +99,21 @@ function init() {
     return new Extension();
 }
 
+
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
-    _init(layoutManager, monitor, x, y) {
+    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout) {
         log('HotEdge: Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
         this._monitor = monitor;
         this._x = x;
         this._y = y;
+        this.fallbackTimeout = fallbackTimeout;
 
         this._setupFallbackEdgeIfNeeded(layoutManager);
 
-        this._pressureBarrier = new Layout.PressureBarrier(HOT_EDGE_PRESSURE_THRESHOLD,
+        this._pressureBarrier = new Layout.PressureBarrier(pressureThreshold,
                                                     HOT_EDGE_PRESSURE_TIMEOUT,
                                                     Shell.ActionMode.NORMAL |
                                                     Shell.ActionMode.OVERVIEW);
@@ -129,7 +181,7 @@ class HotEdge extends Clutter.Actor {
 
     vfunc_enter_event(crossingEvent) {
         if (!this._timeoutId) {
-            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_HIGH, HOT_EDGE_FALLBACK_TIMEOUT, () => {
+            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_HIGH, this.fallbackTimeout, () => {
                 this._toggleOverview();
                 return GLib.SOURCE_REMOVE;
             });
@@ -145,45 +197,4 @@ class HotEdge extends Clutter.Actor {
         return Clutter.EVENT_PROPAGATE;
     }
 });
-
-
-function updateHotEdges() {
-        log('HotEdge: Updating hot edges.');
-        // build new hot edges
-        for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-            let monitor = Main.layoutManager.monitors[i];
-            let leftX = monitor.x;
-            let rightX = monitor.x + monitor.width;
-            let bottomY = monitor.y + monitor.height;
-            let size = monitor.width;
-
-            let haveBottom = true;
-
-            // Check if we have a bottom.
-            // i.e. if there is no monitor directly below
-            for (let j = 0; j < Main.layoutManager.monitors.length; j++) {
-                if (i == j) {
-                    continue;
-                }
-                let otherMonitor = Main.layoutManager.monitors[j];
-                let otherLeftX = otherMonitor.x;
-                let otherRightX = otherMonitor.x + otherMonitor.width;
-                let otherTopY = otherMonitor.y;
-                if (otherTopY >= bottomY && otherLeftX < rightX && otherRightX > leftX) {
-                    haveBottom = false;
-                }
-            }
-
-            if (haveBottom) {
-                log('HotEdge: Monitor ' + i + ' has a bottom, adding a hot edge.');
-                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY);
-                edge.setBarrierSize(size);
-                Main.layoutManager.hotCorners.push(edge);
-            } else {
-                log('HotEdge: Monitor ' + i + ' does not have a bottom, not adding a hot edge.');
-                Main.layoutManager.hotCorners.push(null);
-            }
-        }
-    }
-
 

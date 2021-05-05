@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.hotedge" path="/org/gnome/shell/extensions/hotedge/">
+    <!-- See also: https://developer.gnome.org/glib/stable/gvariant-format-strings.html -->
+    <key name="pressure-threshold" type="u">
+      <default>100</default>
+    </key>
+    <key name="fallback-timeout" type="u">
+      <default>200</default>
+    </key>
+  </schema>
+</schemalist>
+
