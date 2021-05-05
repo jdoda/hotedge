@@ -18,12 +18,14 @@
 
 /* exported init */
 
-const { Clutter, GObject, Meta, Shell} = imports.gi;
+const { Clutter, GObject, GLib, Meta, Shell} = imports.gi;
 const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
 const HOT_EDGE_PRESSURE_THRESHOLD = 100; // pixels
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
+const HOT_EDGE_FALLBACK_TIMEOUT = 200; // ms
+
 
 class Extension {
     constructor() {
@@ -53,14 +55,7 @@ class HotEdge extends Clutter.Actor {
         log('HotEdge: Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
-        // We use this flag to mark the case where the user has entered the
-        // hot edge and has not left both the hot edge and a surrounding
-        // guard area (the "environs"). This avoids triggering the hot edge
-        // multiple times due to an accidental jitter.
-        this._entered = false;
-
         this._monitor = monitor;
-
         this._x = x;
         this._y = y;
 
@@ -102,6 +97,7 @@ class HotEdge extends Clutter.Actor {
                 width: this._monitor.width,
                 height: 1,
                 reactive: true,
+                _timeoutId: null
             });
             layoutManager.addChrome(this);
         }
@@ -132,15 +128,20 @@ class HotEdge extends Clutter.Actor {
     }
 
     vfunc_enter_event(crossingEvent) {
-        if (!this._entered) {
-            this._entered = true;
-            this._toggleOverview();
+        if (!this._timeoutId) {
+            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_HIGH, HOT_EDGE_FALLBACK_TIMEOUT, () => {
+                this._toggleOverview();
+                return GLib.SOURCE_REMOVE;
+            });
         }
         return Clutter.EVENT_PROPAGATE;
     }
 
     vfunc_leave_event(crossingEvent) {
-        this._entered = false;
+        if (this._timeoutId) {
+            GLib.Source.remove(this._timeoutId);
+            this._timeoutId = null;
+        }
         return Clutter.EVENT_PROPAGATE;
     }
 });
