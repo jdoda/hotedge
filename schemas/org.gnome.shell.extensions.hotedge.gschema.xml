@@ -8,6 +8,9 @@
     <key name="fallback-timeout" type="u">
       <default>250</default>
     </key>
+    <key name="min-log-level" type="u">
+      <default>1</default>
+    </key>
   </schema>
 </schemalist>
 

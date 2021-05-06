@@ -20,17 +20,26 @@
 
 const { Clutter, GObject, GLib, Meta, Shell} = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Logger = Me.imports.logger;
 const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
+const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.hotedge';
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
+let LOGGER = new Logger.Logger('HotEdge', SETTINGS_SCHEMA);
+
+
+function init() {
+    return new Extension();
+}
 
 
 class Extension {
     constructor() {
         this._edgeHandlerId = null;
         this._settingsHandlerId = null;
-        this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.hotedge');
+        this._settings = ExtensionUtils.getSettings(SETTINGS_SCHEMA);
     }
 
     enable() {
@@ -52,10 +61,10 @@ class Extension {
     }
     
     _updateHotEdges() {
-        log('HotEdge: Updating hot edges.');
+        LOGGER.info('Updating hot edges.');
         let pressureThreshold = this._settings.get_uint('pressure-threshold');
         let fallbackTimeout = this._settings.get_uint('fallback-timeout');
-        log('HotEdge: pressureThreshold ' + pressureThreshold);
+        LOGGER.debug('pressureThreshold ' + pressureThreshold);
         
         // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
@@ -83,27 +92,23 @@ class Extension {
             }
 
             if (haveBottom) {
-                log('HotEdge: Monitor ' + i + ' has a bottom, adding a hot edge.');
+                LOGGER.debug('Monitor ' + i + ' has a bottom, adding a hot edge.');
                 let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout);
                 edge.setBarrierSize(size);
                 Main.layoutManager.hotCorners.push(edge);
             } else {
-                log('HotEdge: Monitor ' + i + ' does not have a bottom, not adding a hot edge.');
+                LOGGER.debug('Monitor ' + i + ' does not have a bottom, not adding a hot edge.');
                 Main.layoutManager.hotCorners.push(null);
             }
         }
     }
 }
 
-function init() {
-    return new Extension();
-}
-
 
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
     _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout) {
-        log('HotEdge: Creating hot edge x: ' + x + ' y: ' + y);
+        LOGGER.debug('Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
         this._monitor = monitor;
@@ -131,7 +136,7 @@ class HotEdge extends Clutter.Actor {
 
         if (size > 0) {
             size = this._monitor.width // We always want the size to be the full width of the monitor.
-            log('HotEdge: Setting barrier size to ' + size);
+            LOGGER.debug('Setting barrier size to ' + size);
             this._barrier = new Meta.Barrier({ display: global.display,
                                                        x1: this._x, x2: this._x + size, y1: this._y, y2: this._y,
                                                        directions: Meta.BarrierDirection.NEGATIVE_Y }); 
@@ -141,7 +146,7 @@ class HotEdge extends Clutter.Actor {
 
     _setupFallbackEdgeIfNeeded(layoutManager) {
         if (!global.display.supports_extended_barriers()) {
-            log('HotEdge: Display does not support extended barriers, falling back to old method.');
+            LOGGER.info('Display does not support extended barriers, falling back to old method.');
             this.set({
                 name: 'hot-edge',
                 x: this._x,
