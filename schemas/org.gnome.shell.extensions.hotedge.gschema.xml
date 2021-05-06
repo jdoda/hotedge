@@ -6,7 +6,7 @@
       <default>100</default>
     </key>
     <key name="fallback-timeout" type="u">
-      <default>200</default>
+      <default>250</default>
     </key>
   </schema>
 </schemalist>
