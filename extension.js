@@ -21,13 +21,13 @@
 const { Clutter, GObject, GLib, Meta, Shell} = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Logger = Me.imports.logger;
+const Logger = Me.imports.logger.Logger;
 const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
 const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.hotedge';
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
-let LOGGER = new Logger.Logger('HotEdge', SETTINGS_SCHEMA);
+const LOGGER = new Logger('HotEdge', SETTINGS_SCHEMA);
 
 
 function init() {
@@ -64,7 +64,10 @@ class Extension {
         LOGGER.info('Updating hot edges.');
         let pressureThreshold = this._settings.get_uint('pressure-threshold');
         let fallbackTimeout = this._settings.get_uint('fallback-timeout');
+        let cornerDeadzone = this._settings.get_uint('corner-deadzone');
         LOGGER.debug('pressureThreshold ' + pressureThreshold);
+        LOGGER.debug('fallbackTimeout ' + fallbackTimeout);
+        LOGGER.debug('cornerDeadzone ' + cornerDeadzone);
         
         // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
@@ -93,7 +96,7 @@ class Extension {
 
             if (haveBottom) {
                 LOGGER.debug('Monitor ' + i + ' has a bottom, adding a hot edge.');
-                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout);
+                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout, cornerDeadzone);
                 edge.setBarrierSize(size);
                 Main.layoutManager.hotCorners.push(edge);
             } else {
@@ -107,14 +110,15 @@ class Extension {
 
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
-    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout) {
+    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout, cornerDeadzone) {
         LOGGER.debug('Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
         this._monitor = monitor;
         this._x = x;
         this._y = y;
-        this.fallbackTimeout = fallbackTimeout;
+        this._fallbackTimeout = fallbackTimeout;
+        this._cornerDeadzone = cornerDeadzone;
 
         this._setupFallbackEdgeIfNeeded(layoutManager);
 
@@ -135,23 +139,24 @@ class HotEdge extends Clutter.Actor {
         }
 
         if (size > 0) {
-            size = this._monitor.width // We always want the size to be the full width of the monitor.
+            size = this._monitor.width - (2 * this._cornerDeadzone); // We always want the size to be the full width of the monitor, minus the corner deadzones (if any).
             LOGGER.debug('Setting barrier size to ' + size);
             this._barrier = new Meta.Barrier({ display: global.display,
-                                                       x1: this._x, x2: this._x + size, y1: this._y, y2: this._y,
-                                                       directions: Meta.BarrierDirection.NEGATIVE_Y }); 
+                                                       x1: this._x + this._cornerDeadzone, x2: this._x + this._cornerDeadzone + size, 
+                                                       y1: this._y, y2: this._y,
+                                                       directions: Meta.BarrierDirection.NEGATIVE_Y });
             this._pressureBarrier.addBarrier(this._barrier);
         }
     }
 
     _setupFallbackEdgeIfNeeded(layoutManager) {
         if (!global.display.supports_extended_barriers()) {
-            LOGGER.info('Display does not support extended barriers, falling back to old method.');
+            LOGGER.warn('Display does not support extended barriers, using fallback path.');
             this.set({
                 name: 'hot-edge',
-                x: this._x,
+                x: this._x + this._cornerDeadzone,
                 y: this._y - 1,
-                width: this._monitor.width,
+                width: this._monitor.width - (2 * this._cornerDeadzone),
                 height: 1,
                 reactive: true,
                 _timeoutId: null
@@ -175,18 +180,9 @@ class HotEdge extends Clutter.Actor {
         }
     }
 
-    handleDragOver(source, _actor, _x, _y, _time) {
-        if (source != Main.xdndHandler)
-            return DND.DragMotionResult.CONTINUE;
-
-        this._toggleOverview();
-
-        return DND.DragMotionResult.CONTINUE;
-    }
-
     vfunc_enter_event(crossingEvent) {
         if (!this._timeoutId) {
-            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_HIGH, this.fallbackTimeout, () => {
+            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_HIGH, this._fallbackTimeout, () => {
                 this._toggleOverview();
                 return GLib.SOURCE_REMOVE;
             });

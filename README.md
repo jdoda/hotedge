@@ -34,3 +34,16 @@ Hot Edge exposes two gsettings keys that can modify it's behaviour : `pressure-t
 #### Example
 `gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge fallback-timeout 500`
 
+### corner-deadzone
+
+`corner-deadzone` is a region extending in from each corner of the screen where the hot edge cannot be activated. It's measured in pixels, and the default value is 0 px.
+
+#### Example
+`gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge corner-deadzone 24`
+
+### min-log-level
+`min-log-level` is the minimum level of log statement that will be logged. Log levels increase in order of severity with 0 (DEBUG) being the lowest and 4 (FATAL) being the highest. The default value is 1 (INFO).
+
+#### Example
+`gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge min-log-level 0`
+ 

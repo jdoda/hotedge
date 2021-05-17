@@ -3,12 +3,19 @@
   <schema id="org.gnome.shell.extensions.hotedge" path="/org/gnome/shell/extensions/hotedge/">
     <!-- See also: https://developer.gnome.org/glib/stable/gvariant-format-strings.html -->
     <key name="pressure-threshold" type="u">
+      <summary>Amount by which the cursor must be moved "below" the edge in order to trigger, in pixels.</summary>
       <default>100</default>
     </key>
     <key name="fallback-timeout" type="u">
+      <summary>Time the cursor must be touching the edge in order to trigger. Only used if the display does not support pressure barriers.</summary>
       <default>250</default>
     </key>
+    <key name="corner-deadzone" type="u">
+      <summary>Size of the corner deadzones, in pixels.</summary>
+      <default>0</default>
+    </key>
     <key name="min-log-level" type="u">
+      <summary>Log statements with a level below this value are not logged.</summary>
       <default>1</default>
     </key>
   </schema>
