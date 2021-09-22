@@ -3,6 +3,6 @@
   "description": "Add a hot edge that activates the overview to the bottom of the screen. This minimizes the pointer travel required to access the dash when using the new GNOME Shell 40 overview layout.\n\nYou can find more documentation at https://github.com/jdoda/hotedge/blob/main/README.md and report issues at https://github.com/jdoda/hotedge/issues .",
   "uuid": "hotedge@jonathan.jdoda.ca",
   "version": 6,
-  "shell-version": ["40"],
+  "shell-version": ["40", "41"],
   "url": "https://github.com/jdoda/hotedge"
 }
