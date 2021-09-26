@@ -39,10 +39,11 @@ class Extension {
     constructor() {
         this._edgeHandlerId = null;
         this._settingsHandlerId = null;
-        this._settings = ExtensionUtils.getSettings(SETTINGS_SCHEMA);
+        this._settings = null;
     }
 
     enable() {
+        this._settings = ExtensionUtils.getSettings(SETTINGS_SCHEMA);
         this._settingsHandlerId = this._settings.connect('changed', this._onSettingsChange.bind(this));
         this._edgeHandlerId = Main.layoutManager.connect('hot-corners-changed', this._updateHotEdges.bind(this));
         
@@ -52,6 +53,7 @@ class Extension {
     disable() {
         Main.layoutManager.disconnect(this._edgeHandlerId);
         this._settings.disconnect(this._settingsHandlerId);
+        this._settings = null;
         
         Main.layoutManager._updateHotCorners();
     }
