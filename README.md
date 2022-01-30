@@ -18,7 +18,7 @@ make install
 
 Hot Edge does not disable the existing hot-corner. The hot-corner can be disabled using the GNOME Tweaks tool, using the setting **Top Bar > Activities Overview Hot Corner**.
 
-Hot Edge exposes two gsettings keys that can modify it's behaviour : `pressure-threshold` and `fallback-timeout`. These keys contol the sensitivity of the bottom edge to activation but only one of the keys is active at a time, depending on whether your system supports pressure barriers or has to use the timeout based fallback code. You can check this on your system by running the command `journalctl -g hotedge /usr/bin/gnome-shell` and checking for a line like `HotEdge: Display does not support extended barriers, falling back to old method.`. This indicates that you're using the fallback code, and need to adjust the `fallback-timeout` key and not the `pressure-threshold` key. Otherwise, you must adjust the `pressure-threshold` key and the `fallback-timeout` key has no effect.
+Hot Edge exposes two settings that alter its sensitivity : `pressure-threshold` and `fallback-timeout`. Only one of these settings is active at a time, depending on whether your system supports pressure barriers or has to use the timeout based fallback code. You can check this on your system by running the command `journalctl -g hotedge /usr/bin/gnome-shell` and checking for a line like `HotEdge: Display does not support extended barriers, falling back to old method.`. This indicates that you're using the fallback code, and need to adjust the `fallback-timeout` key and not the `pressure-threshold` setting. Otherwise, you must adjust the `pressure-threshold` setting and the `fallback-timeout` setting has no effect. Only the `pressure-threshold` setting is exposed in the preference dialog.
 
 ### pressure-threshold
 
@@ -34,12 +34,12 @@ Hot Edge exposes two gsettings keys that can modify it's behaviour : `pressure-t
 #### Example
 `gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge fallback-timeout 500`
 
-### corner-deadzone
+### edge-size
 
-`corner-deadzone` is a region extending in from each corner of the screen where the hot edge cannot be activated. It's measured in pixels, and the default value is 0 px.
+`edge-size` is the size of the hot region of the edge, measure as a precentage of the width of the display. The hot region is always centered, so decreasing this value creates larger deadzones extending in from the corners.
 
 #### Example
-`gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge corner-deadzone 24`
+`gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge edge-size 50`
 
 ### min-log-level
 `min-log-level` is the minimum level of log statement that will be logged. Log levels increase in order of severity with 0 (DEBUG) being the lowest and 4 (FATAL) being the highest. The default value is 1 (INFO).
