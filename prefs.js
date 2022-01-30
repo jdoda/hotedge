@@ -26,7 +26,7 @@ function buildPrefsWidget() {
 
     // pressure-threshold
     let pressureLabel = new Gtk.Label({
-        label: 'Activation Pressure',
+        label: 'Activation Pressure (px)',
         halign: Gtk.Align.START,
         visible: true
     });
@@ -50,28 +50,28 @@ function buildPrefsWidget() {
         Gio.SettingsBindFlags.DEFAULT
     );
 
-    // corner-deadzone
-    let deadzoneLabel = new Gtk.Label({
-        label: 'Corner Deadzone Size',
+    // edge-size
+    let edgeSizeLabel = new Gtk.Label({
+        label: 'Edge Size (% of display)',
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(deadzoneLabel, 0, 1, 1, 1);
+    prefsWidget.attach(edgeSizeLabel, 0, 1, 1, 1);
 
-    let deadzoneInput = new Gtk.SpinButton({
+    let edgeSizeInput = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
-            lower: 0,
-            upper: 2000,
+            lower: 1,
+            upper: 100,
             step_increment: 10,
         }),
         halign: Gtk.Align.END,
         visible: true
     });
-    prefsWidget.attach(deadzoneInput, 1, 1, 1, 1);
+    prefsWidget.attach(edgeSizeInput, 1, 1, 1, 1);
 
     this.settings.bind(
-        'corner-deadzone',
-        deadzoneInput,
+        'edge-size',
+        edgeSizeInput,
         'value',
         Gio.SettingsBindFlags.DEFAULT
     );  

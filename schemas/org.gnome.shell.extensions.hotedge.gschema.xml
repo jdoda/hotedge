@@ -10,9 +10,9 @@
       <summary>Time the cursor must be touching the edge in order to trigger. Only used if the display does not support pressure barriers.</summary>
       <default>250</default>
     </key>
-    <key name="corner-deadzone" type="u">
-      <summary>Size of the corner deadzones, in pixels.</summary>
-      <default>0</default>
+    <key name="edge-size" type="u">
+      <summary>Size of hot area of the edge, as a percentage of the display width.</summary>
+      <default>100</default>
     </key>
     <key name="min-log-level" type="u">
       <summary>Log statements with a level below this value are not logged.</summary>

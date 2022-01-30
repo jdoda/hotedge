@@ -66,10 +66,10 @@ class Extension {
         LOGGER.info('Updating hot edges.');
         let pressureThreshold = this._settings.get_uint('pressure-threshold');
         let fallbackTimeout = this._settings.get_uint('fallback-timeout');
-        let cornerDeadzone = this._settings.get_uint('corner-deadzone');
+        let edgeSize = this._settings.get_uint('edge-size') / 100;
         LOGGER.debug('pressureThreshold ' + pressureThreshold);
         LOGGER.debug('fallbackTimeout ' + fallbackTimeout);
-        LOGGER.debug('cornerDeadzone ' + cornerDeadzone);
+        LOGGER.debug('edgeSize ' + edgeSize);
         
         // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
@@ -98,7 +98,7 @@ class Extension {
 
             if (haveBottom) {
                 LOGGER.debug('Monitor ' + i + ' has a bottom, adding a hot edge.');
-                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout, cornerDeadzone);
+                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout, edgeSize);
                 edge.setBarrierSize(size);
                 Main.layoutManager.hotCorners.push(edge);
             } else {
@@ -112,7 +112,7 @@ class Extension {
 
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
-    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout, cornerDeadzone) {
+    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout, edgeSize) {
         LOGGER.debug('Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
@@ -120,7 +120,7 @@ class HotEdge extends Clutter.Actor {
         this._x = x;
         this._y = y;
         this._fallbackTimeout = fallbackTimeout;
-        this._cornerDeadzone = cornerDeadzone;
+        this._edgeSize = edgeSize;
 
         this._setupFallbackEdgeIfNeeded(layoutManager);
 
@@ -141,10 +141,11 @@ class HotEdge extends Clutter.Actor {
         }
 
         if (size > 0) {
-            size = this._monitor.width - (2 * this._cornerDeadzone); // We always want the size to be the full width of the monitor, minus the corner deadzones (if any).
+            size = this._monitor.width * this._edgeSize
+            let x_offset = (this._monitor.width - size) / 2
             LOGGER.debug('Setting barrier size to ' + size);
             this._barrier = new Meta.Barrier({ display: global.display,
-                                                       x1: this._x + this._cornerDeadzone, x2: this._x + this._cornerDeadzone + size, 
+                                                       x1: this._x + x_offset, x2: this._x + x_offset + size, 
                                                        y1: this._y, y2: this._y,
                                                        directions: Meta.BarrierDirection.NEGATIVE_Y });
             this._pressureBarrier.addBarrier(this._barrier);
@@ -154,11 +155,14 @@ class HotEdge extends Clutter.Actor {
     _setupFallbackEdgeIfNeeded(layoutManager) {
         if (!global.display.supports_extended_barriers()) {
             LOGGER.warn('Display does not support extended barriers, using fallback path.');
+            let size = this._monitor.width * this._edgeSize
+            let x_offset = (this._monitor.width - this._edgeSize) / 2
+            
             this.set({
                 name: 'hot-edge',
-                x: this._x + this._cornerDeadzone,
+                x: this._x + x_offset,
                 y: this._y - 1,
-                width: this._monitor.width - (2 * this._cornerDeadzone),
+                width: size,
                 height: 1,
                 reactive: true,
                 _timeoutId: null
