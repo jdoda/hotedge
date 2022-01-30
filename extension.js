@@ -27,7 +27,7 @@ const Main = imports.ui.main;
 
 const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.hotedge';
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
-const LOGGER = new Logger('HotEdge', SETTINGS_SCHEMA);
+let LOGGER = null
 
 
 function init() {
@@ -43,6 +43,8 @@ class Extension {
     }
 
     enable() {
+        LOGGER = new Logger('HotEdge', SETTINGS_SCHEMA);
+    
         this._settings = ExtensionUtils.getSettings(SETTINGS_SCHEMA);
         this._settingsHandlerId = this._settings.connect('changed', this._onSettingsChange.bind(this));
         this._edgeHandlerId = Main.layoutManager.connect('hot-corners-changed', this._updateHotEdges.bind(this));
@@ -56,6 +58,8 @@ class Extension {
         this._settings = null;
         
         Main.layoutManager._updateHotCorners();
+        
+        LOGGER = null;
     }
     
     _onSettingsChange() {
