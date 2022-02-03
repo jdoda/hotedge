@@ -71,6 +71,7 @@ class Extension {
         let pressureThreshold = this._settings.get_uint('pressure-threshold');
         let fallbackTimeout = this._settings.get_uint('fallback-timeout');
         let edgeSize = this._settings.get_uint('edge-size') / 100;
+        let suppressActivationWhenButtonHeld = this._settings.get_boolean('suppress-activation-when-button-held')
         LOGGER.debug('pressureThreshold ' + pressureThreshold);
         LOGGER.debug('fallbackTimeout ' + fallbackTimeout);
         LOGGER.debug('edgeSize ' + edgeSize);
@@ -102,7 +103,7 @@ class Extension {
 
             if (haveBottom) {
                 LOGGER.debug('Monitor ' + i + ' has a bottom, adding a hot edge.');
-                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout, edgeSize);
+                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout, edgeSize, suppressActivationWhenButtonHeld);
                 edge.setBarrierSize(size);
                 Main.layoutManager.hotCorners.push(edge);
             } else {
@@ -116,7 +117,7 @@ class Extension {
 
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
-    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout, edgeSize) {
+    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout, edgeSize, suppressActivationWhenButtonHeld) {
         LOGGER.debug('Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
@@ -125,6 +126,7 @@ class HotEdge extends Clutter.Actor {
         this._y = y;
         this._fallbackTimeout = fallbackTimeout;
         this._edgeSize = edgeSize;
+        this._suppressActivationWhenButtonHeld = suppressActivationWhenButtonHeld
 
         this._setupFallbackEdgeIfNeeded(layoutManager);
 
@@ -182,6 +184,10 @@ class HotEdge extends Clutter.Actor {
     }
 
     _toggleOverview() {
+        if (this._suppressActivationWhenButtonHeld && (global.get_pointer()[2] & Clutter.ModifierType.BUTTON1_MASK)) {
+            return;
+        }
+
         if (this._monitor.inFullscreen && !Main.overview.visible)
             return;
 

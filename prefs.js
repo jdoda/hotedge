@@ -75,14 +75,35 @@ function buildPrefsWidget() {
         'value',
         Gio.SettingsBindFlags.DEFAULT
     );  
-       
+
+    // suppress-activation-when-button-held
+    let suppressActivationLabel = new Gtk.Label({
+        label: "Don't activate when a button is held",
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    prefsWidget.attach(suppressActivationLabel, 0, 2, 1, 1);
+
+    let suppressActivationInput = new Gtk.Switch({
+        halign: Gtk.Align.END,
+        visible: true
+    });
+    prefsWidget.attach(suppressActivationInput, 1, 2, 1, 1);
+
+    this.settings.bind(
+        'suppress-activation-when-button-held',
+        suppressActivationInput,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );  
+    
     // min-log-level
     let logLevelLabel = new Gtk.Label({
         label: 'Log Level',
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(logLevelLabel, 0, 2, 1, 1);
+    prefsWidget.attach(logLevelLabel, 0, 3, 1, 1);
 
     let logLevelInput = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
@@ -93,7 +114,7 @@ function buildPrefsWidget() {
         halign: Gtk.Align.END,
         visible: true
     });
-    prefsWidget.attach(logLevelInput, 1, 2, 1, 1);
+    prefsWidget.attach(logLevelInput, 1, 3, 1, 1);
 
     this.settings.bind(
         'min-log-level',
@@ -101,6 +122,7 @@ function buildPrefsWidget() {
         'value',
         Gio.SettingsBindFlags.DEFAULT
     );    
+    
 
     return prefsWidget;
 }
