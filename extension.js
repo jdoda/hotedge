@@ -103,7 +103,7 @@ class Extension {
 
             if (haveBottom) {
                 LOGGER.debug('Monitor ' + i + ' has a bottom, adding a hot edge.');
-                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, pressureThreshold, fallbackTimeout, edgeSize, suppressActivationWhenButtonHeld);
+                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, this._settings);
                 edge.setBarrierSize(size);
                 Main.layoutManager.hotCorners.push(edge);
             } else {
@@ -117,19 +117,21 @@ class Extension {
 
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
-    _init(layoutManager, monitor, x, y, pressureThreshold, fallbackTimeout, edgeSize, suppressActivationWhenButtonHeld) {
+    _init(layoutManager, monitor, x, y, settings) {
         LOGGER.debug('Creating hot edge x: ' + x + ' y: ' + y);
         super._init();
 
         this._monitor = monitor;
         this._x = x;
         this._y = y;
-        this._fallbackTimeout = fallbackTimeout;
-        this._edgeSize = edgeSize;
-        this._suppressActivationWhenButtonHeld = suppressActivationWhenButtonHeld
+        this._settings = settings;
+        this._fallbackTimeout = this._settings.get_uint('fallback-timeout');
+        this._edgeSize = this._settings.get_uint('edge-size') / 100;
+        this._suppressActivationWhenButtonHeld = this._settings.get_boolean('suppress-activation-when-button-held');
 
         this._setupFallbackEdgeIfNeeded(layoutManager);
 
+        let pressureThreshold = this._settings.get_uint('pressure-threshold');
         this._pressureBarrier = new Layout.PressureBarrier(pressureThreshold,
                                                     HOT_EDGE_PRESSURE_TIMEOUT,
                                                     Shell.ActionMode.NORMAL |
@@ -161,6 +163,8 @@ class HotEdge extends Clutter.Actor {
     _setupFallbackEdgeIfNeeded(layoutManager) {
         if (!global.display.supports_extended_barriers()) {
             LOGGER.warn('Display does not support extended barriers, using fallback path.');
+            this._settings.set_boolean('fallback-in-use', true);
+            
             let size = this._monitor.width * this._edgeSize
             let x_offset = (this._monitor.width - this._edgeSize) / 2
             
@@ -174,6 +178,8 @@ class HotEdge extends Clutter.Actor {
                 _timeoutId: null
             });
             layoutManager.addChrome(this);
+        } else {
+            this._settings.set_boolean('fallback-in-use', false);
         }
     }
 

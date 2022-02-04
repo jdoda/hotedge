@@ -18,7 +18,7 @@ make install
 
 Hot Edge does not disable the existing hot-corner. The hot-corner can be disabled using the GNOME Tweaks tool, using the setting **Top Bar > Activities Overview Hot Corner**.
 
-Hot Edge exposes two settings that alter its sensitivity : `pressure-threshold` and `fallback-timeout`. Only one of these settings is active at a time, depending on whether your system supports pressure barriers or has to use the timeout based fallback code. You can check this on your system by running the command `journalctl -g hotedge /usr/bin/gnome-shell` and checking for a line like `HotEdge: Display does not support extended barriers, falling back to old method.`. This indicates that you're using the fallback code, and need to adjust the `fallback-timeout` key and not the `pressure-threshold` setting. Otherwise, you must adjust the `pressure-threshold` setting and the `fallback-timeout` setting has no effect. Only the `pressure-threshold` setting is exposed in the preference dialog.
+Hot Edge exposes two settings that alter its sensitivity : `pressure-threshold` and `fallback-timeout`. Only one of these settings is active at a time, depending on whether your system supports pressure barriers or has to use the timeout based fallback code. You can check this on your system by running the command `journalctl -g hotedge /usr/bin/gnome-shell` and checking for a line like `HotEdge: Display does not support extended barriers, falling back to old method.`. This indicates that you're using the fallback code, and need to adjust the `fallback-timeout` key and not the `pressure-threshold` setting. Otherwise, you must adjust the `pressure-threshold` setting and the `fallback-timeout` setting has no effect.
 
 ### pressure-threshold
 
@@ -41,7 +41,12 @@ Hot Edge exposes two settings that alter its sensitivity : `pressure-threshold` 
 #### Example
 `gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge edge-size 50`
 
+### suppress-activation-when-button-held
+
+When `suppress-activation-when-button-held` is true the hot edge will not activate when a mouse button is held down. This reduces the chance of accidental activation, but also prevents you from using th ehot edge to open the shell during drag-and-drop operations.
+
 ### min-log-level
+
 `min-log-level` is the minimum level of log statement that will be logged. Log levels increase in order of severity with 0 (DEBUG) being the lowest and 4 (FATAL) being the highest. The default value is 1 (INFO).
 
 #### Example

@@ -23,32 +23,59 @@ function buildPrefsWidget() {
         row_spacing: 12,
         visible: true
     });
+    if (this.settings.get_boolean('fallback-in-use')) {
+        // fallback-timeout
+        let fallbackLabel = new Gtk.Label({
+            label: 'Activation Timeout (ms)',
+            halign: Gtk.Align.START,
+            visible: true
+        });
+        prefsWidget.attach(fallbackLabel, 0, 0, 1, 1);
 
-    // pressure-threshold
-    let pressureLabel = new Gtk.Label({
-        label: 'Activation Pressure (px)',
-        halign: Gtk.Align.START,
-        visible: true
-    });
-    prefsWidget.attach(pressureLabel, 0, 0, 1, 1);
+        let fallbackInput = new Gtk.SpinButton({
+            adjustment: new Gtk.Adjustment({
+                lower: 0,
+                upper: 1000,
+                step_increment: 50,
+            }),
+            halign: Gtk.Align.END,
+            visible: true
+        });
+        prefsWidget.attach(fallbackInput, 1, 0, 1, 1);
 
-    let pressureInput = new Gtk.SpinButton({
-        adjustment: new Gtk.Adjustment({
-            lower: 0,
-            upper: 500,
-            step_increment: 25,
-        }),
-        halign: Gtk.Align.END,
-        visible: true
-    });
-    prefsWidget.attach(pressureInput, 1, 0, 1, 1);
+        this.settings.bind(
+            'fallback-timeout',
+            fallbackInput,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+    } else {
+        // pressure-threshold
+        let pressureLabel = new Gtk.Label({
+            label: 'Activation Pressure (px)',
+            halign: Gtk.Align.START,
+            visible: true
+        });
+        prefsWidget.attach(pressureLabel, 0, 0, 1, 1);
 
-    this.settings.bind(
-        'pressure-threshold',
-        pressureInput,
-        'value',
-        Gio.SettingsBindFlags.DEFAULT
-    );
+        let pressureInput = new Gtk.SpinButton({
+            adjustment: new Gtk.Adjustment({
+                lower: 0,
+                upper: 500,
+                step_increment: 25,
+            }),
+            halign: Gtk.Align.END,
+            visible: true
+        });
+        prefsWidget.attach(pressureInput, 1, 0, 1, 1);
+
+        this.settings.bind(
+            'pressure-threshold',
+            pressureInput,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+    }
 
     // edge-size
     let edgeSizeLabel = new Gtk.Label({

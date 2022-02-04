@@ -19,6 +19,11 @@
       <default>1</default>
     </key>
     <key name="suppress-activation-when-button-held" type="b">
+      <summary>If set to true, then when a mouse button is held down don't activate the overview.</summary>
+      <default>false</default>
+    </key>
+    <key name="fallback-in-use" type="b">
+      <summary>Set by the extension, indicates whether or not the time-based activation fallback method is in use.</summary>
       <default>false</default>
     </key>
   </schema>
