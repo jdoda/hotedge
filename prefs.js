@@ -18,7 +18,9 @@ function buildPrefsWidget() {
 
     let prefsWidget = new Gtk.Grid({
         margin_start: 16,
+        margin_end: 16,
         margin_top: 16,
+        margin_bottom: 16,
         column_spacing: 24,
         row_spacing: 12,
         visible: true
@@ -28,6 +30,7 @@ function buildPrefsWidget() {
         let fallbackLabel = new Gtk.Label({
             label: 'Activation Timeout (ms)',
             halign: Gtk.Align.START,
+            hexpand: true,
             visible: true
         });
         prefsWidget.attach(fallbackLabel, 0, 0, 1, 1);
@@ -39,6 +42,7 @@ function buildPrefsWidget() {
                 step_increment: 50,
             }),
             halign: Gtk.Align.END,
+            hexpand: true,
             visible: true
         });
         prefsWidget.attach(fallbackInput, 1, 0, 1, 1);
@@ -54,6 +58,7 @@ function buildPrefsWidget() {
         let pressureLabel = new Gtk.Label({
             label: 'Activation Pressure (px)',
             halign: Gtk.Align.START,
+            hexpand: true,
             visible: true
         });
         prefsWidget.attach(pressureLabel, 0, 0, 1, 1);
@@ -65,6 +70,7 @@ function buildPrefsWidget() {
                 step_increment: 25,
             }),
             halign: Gtk.Align.END,
+            hexpand: true,
             visible: true
         });
         prefsWidget.attach(pressureInput, 1, 0, 1, 1);
@@ -81,6 +87,7 @@ function buildPrefsWidget() {
     let edgeSizeLabel = new Gtk.Label({
         label: 'Edge Size (% of display)',
         halign: Gtk.Align.START,
+        hexpand: true,
         visible: true
     });
     prefsWidget.attach(edgeSizeLabel, 0, 1, 1, 1);
@@ -92,6 +99,7 @@ function buildPrefsWidget() {
             step_increment: 10,
         }),
         halign: Gtk.Align.END,
+        hexpand: true,
         visible: true
     });
     prefsWidget.attach(edgeSizeInput, 1, 1, 1, 1);
@@ -107,12 +115,14 @@ function buildPrefsWidget() {
     let suppressActivationLabel = new Gtk.Label({
         label: "Don't activate when a button is held",
         halign: Gtk.Align.START,
+        hexpand: true,
         visible: true
     });
     prefsWidget.attach(suppressActivationLabel, 0, 2, 1, 1);
 
     let suppressActivationInput = new Gtk.Switch({
         halign: Gtk.Align.END,
+        hexpand: true,
         visible: true
     });
     prefsWidget.attach(suppressActivationInput, 1, 2, 1, 1);
@@ -128,6 +138,7 @@ function buildPrefsWidget() {
     let logLevelLabel = new Gtk.Label({
         label: 'Log Level',
         halign: Gtk.Align.START,
+        hexpand: true,
         visible: true
     });
     prefsWidget.attach(logLevelLabel, 0, 3, 1, 1);
@@ -139,6 +150,7 @@ function buildPrefsWidget() {
             step_increment: 1,
         }),
         halign: Gtk.Align.END,
+        hexpand: true,
         visible: true
     });
     prefsWidget.attach(logLevelInput, 1, 3, 1, 1);
