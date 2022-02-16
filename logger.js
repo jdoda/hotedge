@@ -23,7 +23,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 
 const LEVEL = ['DEBUG', 'INFO', 'WARN', 'ERROR',  'FATAL'];
 
-class Logger {
+var Logger = class {
     constructor(componentName, schema) {
         this._componentName = componentName;
         this._settings = ExtensionUtils.getSettings(schema);
