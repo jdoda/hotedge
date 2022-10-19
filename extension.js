@@ -128,6 +128,7 @@ class HotEdge extends Clutter.Actor {
         this._fallbackTimeout = this._settings.get_uint('fallback-timeout');
         this._edgeSize = this._settings.get_uint('edge-size') / 100;
         this._suppressActivationWhenButtonHeld = this._settings.get_boolean('suppress-activation-when-button-held');
+        this._suppressActivationWhenFullscreen = this._settings.get_boolean('suppress-activation-when-fullscreen')
 
         this._setupFallbackEdgeIfNeeded(layoutManager);
 
@@ -194,7 +195,7 @@ class HotEdge extends Clutter.Actor {
             return;
         }
 
-        if (this._monitor.inFullscreen && !Main.overview.visible)
+        if (this._suppressActivationWhenFullscreen && this._monitor.inFullscreen && !Main.overview.visible)
             return;
 
         if (Main.overview.shouldToggleByCornerOrButton()) {

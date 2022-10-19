@@ -133,7 +133,30 @@ function buildPrefsWidget() {
         'active',
         Gio.SettingsBindFlags.DEFAULT
     );  
-    
+
+    // suppress-activation-when-fullscreen
+    let suppressActivationFullscreenLabel = new Gtk.Label({
+        label: "Don't activate when monitor is fullscreen",
+        halign: Gtk.Align.START,
+        hexpand: true,
+        visible: true
+    });
+    prefsWidget.attach(suppressActivationFullscreenLabel, 0, 3, 1, 1);
+
+    let suppressActivationFullscreenInput = new Gtk.Switch({
+        halign: Gtk.Align.END,
+        hexpand: true,
+        visible: true
+    });
+    prefsWidget.attach(suppressActivationFullscreenInput, 1, 3, 1, 1);
+
+    this.settings.bind(
+        'suppress-activation-when-fullscreen',
+        suppressActivationFullscreenInput,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+
     // min-log-level
     let logLevelLabel = new Gtk.Label({
         label: 'Log Level',
@@ -141,7 +164,7 @@ function buildPrefsWidget() {
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(logLevelLabel, 0, 3, 1, 1);
+    prefsWidget.attach(logLevelLabel, 0, 4, 1, 1);
 
     let logLevelInput = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
@@ -153,7 +176,7 @@ function buildPrefsWidget() {
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(logLevelInput, 1, 3, 1, 1);
+    prefsWidget.attach(logLevelInput, 1, 4, 1, 1);
 
     this.settings.bind(
         'min-log-level',
