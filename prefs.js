@@ -112,24 +112,24 @@ function buildPrefsWidget() {
     );  
 
     // suppress-activation-when-button-held
-    let suppressActivationLabel = new Gtk.Label({
+    let suppressActivationButtonHeldLabel = new Gtk.Label({
         label: "Don't activate when a button is held",
         halign: Gtk.Align.START,
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(suppressActivationLabel, 0, 2, 1, 1);
+    prefsWidget.attach(suppressActivationButtonHeldLabel, 0, 2, 1, 1);
 
-    let suppressActivationInput = new Gtk.Switch({
+    let suppressActivationButtonHeldInput = new Gtk.Switch({
         halign: Gtk.Align.END,
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(suppressActivationInput, 1, 2, 1, 1);
+    prefsWidget.attach(suppressActivationButtonHeldInput, 1, 2, 1, 1);
 
     this.settings.bind(
         'suppress-activation-when-button-held',
-        suppressActivationInput,
+        suppressActivationButtonHeldInput,
         'active',
         Gio.SettingsBindFlags.DEFAULT
     );  
