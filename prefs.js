@@ -136,7 +136,7 @@ function buildPrefsWidget() {
 
     // suppress-activation-when-fullscreen
     let suppressActivationFullscreenLabel = new Gtk.Label({
-        label: "Don't activate when monitor is fullscreen",
+        label: "Don't activate when an application is fullscreen",
         halign: Gtk.Align.START,
         hexpand: true,
         visible: true
