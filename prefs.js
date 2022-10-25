@@ -112,28 +112,51 @@ function buildPrefsWidget() {
     );  
 
     // suppress-activation-when-button-held
-    let suppressActivationLabel = new Gtk.Label({
+    let suppressActivationButtonHeldLabel = new Gtk.Label({
         label: "Don't activate when a button is held",
         halign: Gtk.Align.START,
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(suppressActivationLabel, 0, 2, 1, 1);
+    prefsWidget.attach(suppressActivationButtonHeldLabel, 0, 2, 1, 1);
 
-    let suppressActivationInput = new Gtk.Switch({
+    let suppressActivationButtonHeldInput = new Gtk.Switch({
         halign: Gtk.Align.END,
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(suppressActivationInput, 1, 2, 1, 1);
+    prefsWidget.attach(suppressActivationButtonHeldInput, 1, 2, 1, 1);
 
     this.settings.bind(
         'suppress-activation-when-button-held',
-        suppressActivationInput,
+        suppressActivationButtonHeldInput,
         'active',
         Gio.SettingsBindFlags.DEFAULT
     );  
-    
+
+    // suppress-activation-when-fullscreen
+    let suppressActivationFullscreenLabel = new Gtk.Label({
+        label: "Don't activate when an application is fullscreen",
+        halign: Gtk.Align.START,
+        hexpand: true,
+        visible: true
+    });
+    prefsWidget.attach(suppressActivationFullscreenLabel, 0, 3, 1, 1);
+
+    let suppressActivationFullscreenInput = new Gtk.Switch({
+        halign: Gtk.Align.END,
+        hexpand: true,
+        visible: true
+    });
+    prefsWidget.attach(suppressActivationFullscreenInput, 1, 3, 1, 1);
+
+    this.settings.bind(
+        'suppress-activation-when-fullscreen',
+        suppressActivationFullscreenInput,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+
     // min-log-level
     let logLevelLabel = new Gtk.Label({
         label: 'Log Level',
@@ -141,7 +164,7 @@ function buildPrefsWidget() {
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(logLevelLabel, 0, 3, 1, 1);
+    prefsWidget.attach(logLevelLabel, 0, 4, 1, 1);
 
     let logLevelInput = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
@@ -153,7 +176,7 @@ function buildPrefsWidget() {
         hexpand: true,
         visible: true
     });
-    prefsWidget.attach(logLevelInput, 1, 3, 1, 1);
+    prefsWidget.attach(logLevelInput, 1, 4, 1, 1);
 
     this.settings.bind(
         'min-log-level',
