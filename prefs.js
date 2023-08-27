@@ -26,8 +26,6 @@ export default class HotEdgePreferences extends ExtensionPreferences {
 
     getPreferencesWidget() {
 
-        this.settings = this.getSettings();
-
         let prefsWidget = new Gtk.Grid({
             margin_start: 16,
             margin_end: 16,
@@ -37,7 +35,7 @@ export default class HotEdgePreferences extends ExtensionPreferences {
             row_spacing: 12,
             visible: true
         });
-        if (this.settings.get_boolean('fallback-in-use')) {
+        if (this.getSettings().get_boolean('fallback-in-use')) {
             // fallback-timeout
             let fallbackLabel = new Gtk.Label({
                 label: 'Activation Timeout (ms)',
@@ -59,7 +57,7 @@ export default class HotEdgePreferences extends ExtensionPreferences {
             });
             prefsWidget.attach(fallbackInput, 1, 0, 1, 1);
 
-            this.settings.bind(
+            this.getSettings().bind(
                 'fallback-timeout',
                 fallbackInput,
                 'value',
@@ -87,7 +85,7 @@ export default class HotEdgePreferences extends ExtensionPreferences {
             });
             prefsWidget.attach(pressureInput, 1, 0, 1, 1);
 
-            this.settings.bind(
+            this.getSettings().bind(
                 'pressure-threshold',
                 pressureInput,
                 'value',
@@ -116,7 +114,7 @@ export default class HotEdgePreferences extends ExtensionPreferences {
         });
         prefsWidget.attach(edgeSizeInput, 1, 1, 1, 1);
 
-        this.settings.bind(
+        this.getSettings().bind(
             'edge-size',
             edgeSizeInput,
             'value',
@@ -139,7 +137,7 @@ export default class HotEdgePreferences extends ExtensionPreferences {
         });
         prefsWidget.attach(suppressActivationButtonHeldInput, 1, 2, 1, 1);
 
-        this.settings.bind(
+        this.getSettings().bind(
             'suppress-activation-when-button-held',
             suppressActivationButtonHeldInput,
             'active',
@@ -162,7 +160,7 @@ export default class HotEdgePreferences extends ExtensionPreferences {
         });
         prefsWidget.attach(suppressActivationFullscreenInput, 1, 3, 1, 1);
 
-        this.settings.bind(
+        this.getSettings().bind(
             'suppress-activation-when-fullscreen',
             suppressActivationFullscreenInput,
             'active',
@@ -190,7 +188,7 @@ export default class HotEdgePreferences extends ExtensionPreferences {
         });
         prefsWidget.attach(logLevelInput, 1, 4, 1, 1);
 
-        this.settings.bind(
+        this.getSettings().bind(
             'min-log-level',
             logLevelInput,
             'value',

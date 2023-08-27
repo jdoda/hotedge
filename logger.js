@@ -17,7 +17,7 @@
  */
 
 
-const LEVEL = ['DEBUG', 'INFO', 'WARN', 'ERROR',  'FATAL'];
+const LEVEL = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
 
 
 export default class Logger {
@@ -30,28 +30,26 @@ export default class Logger {
     }
     
     debug(message) {
-        this._log(0, message);
+        if (0 >= this._min_level) {
+            console.debug("%s | %s", this._componentName, message);
+        }
     }
     
     info(message) {
-        this._log(1, message);
+        if (1 >= this._min_level) {
+            console.info("%s | %s", this._componentName, message);
+        }
     }
     
     warn(message) {
-        this._log(2, message);
+        if (2 >= this._min_level) {
+            console.warn("%s | %s", this._componentName, message);
+        }
     }
     
     error(message) {
-        this._log(3, message);
-    }
-    
-    fatal(message) {
-        this._log(4, message);
-    }
-    
-    _log(level, message) {
-        if (level >= this._min_level) {
-            log(this._componentName + ' | ' + LEVEL[level] + ' | ' + message);
+        if (3 >= this._min_level) {
+            console.error("%s | %s", this._componentName, message);
         }
     }
     
