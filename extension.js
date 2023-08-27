@@ -16,36 +16,37 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* exported init */
+import Clutter from 'gi://Clutter';
+import GObject from 'gi://GObject';
+import GLib from 'gi://GLib';
+import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
 
-const { Clutter, GObject, GLib, Meta, Shell} = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Logger = Me.imports.logger.Logger;
-const Layout = imports.ui.layout;
-const Main = imports.ui.main;
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Layout from 'resource:///org/gnome/shell/ui/layout.js'
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.hotedge';
+import Logger from './logger.js';
+
+
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
 let LOGGER = null
 
 
-function init() {
-    return new Extension();
-}
+export default class HotEdgeExtension extends Extension {
 
+    constructor(metadata) {
+        super(metadata);
 
-class Extension {
-    constructor() {
         this._edgeHandlerId = null;
         this._settingsHandlerId = null;
         this._settings = null;
     }
 
     enable() {
-        LOGGER = new Logger('HotEdge', SETTINGS_SCHEMA);
+        LOGGER = new Logger('HotEdge', this.getSettings());
     
-        this._settings = ExtensionUtils.getSettings(SETTINGS_SCHEMA);
+        this._settings = this.getSettings();
         this._settingsHandlerId = this._settings.connect('changed', this._onSettingsChange.bind(this));
         this._edgeHandlerId = Main.layoutManager.connect('hot-corners-changed', this._updateHotEdges.bind(this));
         

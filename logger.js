@@ -15,18 +15,15 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
- 
-/* exported Logger */
 
-const { GObject } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
 
 const LEVEL = ['DEBUG', 'INFO', 'WARN', 'ERROR',  'FATAL'];
 
-var Logger = class {
-    constructor(componentName, schema) {
+
+export default class Logger {
+    constructor(componentName, settings) {
         this._componentName = componentName;
-        this._settings = ExtensionUtils.getSettings(schema);
+        this._settings = settings;
         this._settings.connect('changed', this._onSettingsChange.bind(this));
         this._min_level = 0;
         this._onSettingsChange();
