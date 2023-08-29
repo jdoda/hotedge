@@ -45,10 +45,4 @@ Hot Edge exposes two settings that alter its sensitivity : `pressure-threshold` 
 
 When `suppress-activation-when-button-held` is true the hot edge will not activate when a mouse button is held down. This reduces the chance of accidental activation, but also prevents you from using th ehot edge to open the shell during drag-and-drop operations.
 
-### min-log-level
-
-`min-log-level` is the minimum level of log statement that will be logged. Log levels increase in order of severity with 0 (DEBUG) being the lowest and 4 (FATAL) being the highest. The default value is 1 (INFO).
-
-#### Example
-`gsettings --schemadir ~/.local/share/gnome-shell/extensions/hotedge@jonathan.jdoda.ca/schemas set org.gnome.shell.extensions.hotedge min-log-level 0`
  

@@ -1,6 +1,6 @@
-build/hotedge@jonathan.jdoda.ca.shell-extension.zip : extension.js logger.js metadata.json prefs.js stylesheet.css schemas/org.gnome.shell.extensions.hotedge.gschema.xml schemas/gschemas.compiled
+build/hotedge@jonathan.jdoda.ca.shell-extension.zip : extension.js metadata.json prefs.js stylesheet.css schemas/org.gnome.shell.extensions.hotedge.gschema.xml schemas/gschemas.compiled
 	mkdir -p build
-	gnome-extensions pack --force --extra-source=logger.js -o build
+	gnome-extensions pack --force -o build
 	
 schemas/gschemas.compiled : schemas/org.gnome.shell.extensions.hotedge.gschema.xml
 	glib-compile-schemas schemas/

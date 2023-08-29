@@ -119,28 +119,6 @@ export default class HotEdgePreferences extends ExtensionPreferences {
             Gio.SettingsBindFlags.DEFAULT
         );
         behaviorGroup.add(suppressWhenFullscreenRow);
-        
-        const loggingGroup = new Adw.PreferencesGroup({
-            title: 'Logging'
-        });
-        page.add(loggingGroup);
-        
-        // min-log-level
-        const logLevelRow = new Adw.SpinRow({
-            title: 'Log Level',
-            adjustment: new Gtk.Adjustment({
-                lower: 0,
-                upper: 4,
-                step_increment: 1,
-            }),
-        });
-        settings.bind(
-            'min-log-level',
-            logLevelRow,
-            'value',
-            Gio.SettingsBindFlags.DEFAULT
-        );
-        loggingGroup.add(logLevelRow);
     }
 }
 

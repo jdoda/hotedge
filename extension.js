@@ -26,11 +26,9 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Layout from 'resource:///org/gnome/shell/ui/layout.js'
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-import Logger from './logger.js';
-
 
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
-let LOGGER = null
+const LOG_PREFIX = "HotEdge | "
 
 
 export default class HotEdgeExtension extends Extension {
@@ -44,8 +42,6 @@ export default class HotEdgeExtension extends Extension {
     }
 
     enable() {
-        LOGGER = new Logger('HotEdge', this.getSettings());
-    
         this._settings = this.getSettings();
         this._settingsHandlerId = this._settings.connect('changed', this._onSettingsChange.bind(this));
         this._edgeHandlerId = Main.layoutManager.connect('hot-corners-changed', this._updateHotEdges.bind(this));
@@ -59,8 +55,6 @@ export default class HotEdgeExtension extends Extension {
         this._settings = null;
         
         Main.layoutManager._updateHotCorners();
-        
-        LOGGER = null;
     }
     
     _onSettingsChange() {
@@ -68,13 +62,13 @@ export default class HotEdgeExtension extends Extension {
     }
     
     _updateHotEdges() {
-        LOGGER.info('Updating hot edges.');
+        console.info(LOG_PREFIX + 'Updating hot edges.');
         let pressureThreshold = this._settings.get_uint('pressure-threshold');
         let fallbackTimeout = this._settings.get_uint('fallback-timeout');
         let edgeSize = this._settings.get_uint('edge-size') / 100;
-        LOGGER.debug('pressureThreshold ' + pressureThreshold);
-        LOGGER.debug('fallbackTimeout ' + fallbackTimeout);
-        LOGGER.debug('edgeSize ' + edgeSize);
+        console.debug(LOG_PREFIX + 'pressureThreshold %d', pressureThreshold);
+        console.debug(LOG_PREFIX + 'fallbackTimeout %d', fallbackTimeout);
+        console.debug(LOG_PREFIX + 'edgeSize %d%', edgeSize * 100);
         
         // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
@@ -102,12 +96,12 @@ export default class HotEdgeExtension extends Extension {
             }
 
             if (haveBottom) {
-                LOGGER.debug('Monitor ' + i + ' has a bottom, adding a hot edge.');
+                console.debug(LOG_PREFIX + 'Monitor %d has a bottom, adding a hot edge.', i);
                 let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, this._settings);
                 edge.setBarrierSize(size);
                 Main.layoutManager.hotCorners.push(edge);
             } else {
-                LOGGER.debug('Monitor ' + i + ' does not have a bottom, not adding a hot edge.');
+                console.debug(LOG_PREFIX + 'Monitor %d does not have a bottom, not adding a hot edge.', i);
                 Main.layoutManager.hotCorners.push(null);
             }
         }
@@ -118,7 +112,7 @@ export default class HotEdgeExtension extends Extension {
 const HotEdge = GObject.registerClass(
 class HotEdge extends Clutter.Actor {
     _init(layoutManager, monitor, x, y, settings) {
-        LOGGER.debug('Creating hot edge x: ' + x + ' y: ' + y);
+        console.debug(LOG_PREFIX + 'Creating hot edge x: %d y: %d', x, y);
         super._init();
 
         this._monitor = monitor;
@@ -152,7 +146,7 @@ class HotEdge extends Clutter.Actor {
         if (size > 0) {
             size = this._monitor.width * this._edgeSize
             let x_offset = (this._monitor.width - size) / 2
-            LOGGER.debug('Setting barrier size to ' + size);
+            console.debug(LOG_PREFIX + 'Setting barrier size to %d', size);
             this._barrier = new Meta.Barrier({ display: global.display,
                                                        x1: this._x + x_offset, x2: this._x + x_offset + size, 
                                                        y1: this._y, y2: this._y,
@@ -163,7 +157,7 @@ class HotEdge extends Clutter.Actor {
 
     _setupFallbackEdgeIfNeeded(layoutManager) {
         if (!global.display.supports_extended_barriers()) {
-            LOGGER.warn('Display does not support extended barriers, using fallback path.');
+            console.warn(LOG_PREFIX + 'Display does not support extended barriers, using fallback path.');
             this._settings.set_boolean('fallback-in-use', true);
             
             let size = this._monitor.width * this._edgeSize
