@@ -17,189 +17,130 @@
  */
  
 import Gio from 'gi://Gio';
-import Gtk from 'gi://Gtk';
+import Gtk from 'gi://Gtk?version=4.0';
+import Adw from 'gi://Adw';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 
 export default class HotEdgePreferences extends ExtensionPreferences {
 
-    getPreferencesWidget() {
-
-        let prefsWidget = new Gtk.Grid({
-            margin_start: 16,
-            margin_end: 16,
-            margin_top: 16,
-            margin_bottom: 16,
-            column_spacing: 24,
-            row_spacing: 12,
-            visible: true
+    fillPreferencesWindow(window) {
+        const settings = this.getSettings();
+      
+        const page = new Adw.PreferencesPage({
+            title: 'General',
+            icon_name: 'dialog-information-symbolic',
         });
+        window.add(page);
 
-        prefsWidget._settings = this.getSettings();
-        
-        if (prefsWidget._settings.get_boolean('fallback-in-use')) {
+        const behaviorGroup = new Adw.PreferencesGroup({
+            title: 'Behavior'
+        });
+        page.add(behaviorGroup);
+
+        if (settings.get_boolean('fallback-in-use')) {
             // fallback-timeout
-            let fallbackLabel = new Gtk.Label({
-                label: 'Activation Timeout (ms)',
-                halign: Gtk.Align.START,
-                hexpand: true,
-                visible: true
-            });
-            prefsWidget.attach(fallbackLabel, 0, 0, 1, 1);
-
-            let fallbackInput = new Gtk.SpinButton({
+            const timeoutRow = new Adw.SpinRow({
+                title: 'Activation Timeout',
+                subtitle: 'milliseconds',
                 adjustment: new Gtk.Adjustment({
                     lower: 0,
                     upper: 1000,
                     step_increment: 50,
                 }),
-                halign: Gtk.Align.END,
-                hexpand: true,
-                visible: true
             });
-            prefsWidget.attach(fallbackInput, 1, 0, 1, 1);
-
-            prefsWidget._settings.bind(
+            settings.bind(
                 'fallback-timeout',
-                fallbackInput,
+                timeoutRow,
                 'value',
                 Gio.SettingsBindFlags.DEFAULT
             );
-        } else {
+            behaviorGroup.add(timeoutRow);
+        }
+        else {
             // pressure-threshold
-            let pressureLabel = new Gtk.Label({
-                label: 'Activation Pressure (px)',
-                halign: Gtk.Align.START,
-                hexpand: true,
-                visible: true
-            });
-            prefsWidget.attach(pressureLabel, 0, 0, 1, 1);
-
-            let pressureInput = new Gtk.SpinButton({
+            const pressureRow = new Adw.SpinRow({
+                title: 'Activation Pressure',
+                subtitle: 'pixels',
                 adjustment: new Gtk.Adjustment({
                     lower: 0,
                     upper: 500,
                     step_increment: 25,
                 }),
-                halign: Gtk.Align.END,
-                hexpand: true,
-                visible: true
             });
-            prefsWidget.attach(pressureInput, 1, 0, 1, 1);
-
-            prefsWidget._settings.bind(
+            settings.bind(
                 'pressure-threshold',
-                pressureInput,
+                pressureRow,
                 'value',
                 Gio.SettingsBindFlags.DEFAULT
             );
+            behaviorGroup.add(pressureRow);
         }
-
+        
         // edge-size
-        let edgeSizeLabel = new Gtk.Label({
-            label: 'Edge Size (% of display)',
-            halign: Gtk.Align.START,
-            hexpand: true,
-            visible: true
-        });
-        prefsWidget.attach(edgeSizeLabel, 0, 1, 1, 1);
-
-        let edgeSizeInput = new Gtk.SpinButton({
+        const edgeSizeRow = new Adw.SpinRow({
+            title: 'Edge Size',
+            subtitle: '% of display width',
             adjustment: new Gtk.Adjustment({
                 lower: 1,
                 upper: 100,
                 step_increment: 10,
             }),
-            halign: Gtk.Align.END,
-            hexpand: true,
-            visible: true
         });
-        prefsWidget.attach(edgeSizeInput, 1, 1, 1, 1);
-
-        prefsWidget._settings.bind(
+        settings.bind(
             'edge-size',
-            edgeSizeInput,
+            edgeSizeRow,
             'value',
             Gio.SettingsBindFlags.DEFAULT
-        );  
-
+        );
+        behaviorGroup.add(edgeSizeRow);
+        
         // suppress-activation-when-button-held
-        let suppressActivationButtonHeldLabel = new Gtk.Label({
-            label: "Don't activate when a button is held",
-            halign: Gtk.Align.START,
-            hexpand: true,
-            visible: true
+        const suppressWhenButtonHeldRow = new Adw.SwitchRow({
+            title: "Don't activate when a mouse button is held"
         });
-        prefsWidget.attach(suppressActivationButtonHeldLabel, 0, 2, 1, 1);
-
-        let suppressActivationButtonHeldInput = new Gtk.Switch({
-            halign: Gtk.Align.END,
-            hexpand: true,
-            visible: true
-        });
-        prefsWidget.attach(suppressActivationButtonHeldInput, 1, 2, 1, 1);
-
-        prefsWidget._settings.bind(
+        settings.bind(
             'suppress-activation-when-button-held',
-            suppressActivationButtonHeldInput,
-            'active',
-            Gio.SettingsBindFlags.DEFAULT
-        );  
-
-        // suppress-activation-when-fullscreen
-        let suppressActivationFullscreenLabel = new Gtk.Label({
-            label: "Don't activate when an application is fullscreen",
-            halign: Gtk.Align.START,
-            hexpand: true,
-            visible: true
-        });
-        prefsWidget.attach(suppressActivationFullscreenLabel, 0, 3, 1, 1);
-
-        let suppressActivationFullscreenInput = new Gtk.Switch({
-            halign: Gtk.Align.END,
-            hexpand: true,
-            visible: true
-        });
-        prefsWidget.attach(suppressActivationFullscreenInput, 1, 3, 1, 1);
-
-        prefsWidget._settings.bind(
-            'suppress-activation-when-fullscreen',
-            suppressActivationFullscreenInput,
+            suppressWhenButtonHeldRow,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
-
-        // min-log-level
-        let logLevelLabel = new Gtk.Label({
-            label: 'Log Level',
-            halign: Gtk.Align.START,
-            hexpand: true,
-            visible: true
+        behaviorGroup.add(suppressWhenButtonHeldRow);
+        
+        // suppress-activation-when-fullscreen
+        const suppressWhenFullscreenRow = new Adw.SwitchRow({
+            title: "Don't activate when an application is fullscreen"
         });
-        prefsWidget.attach(logLevelLabel, 0, 4, 1, 1);
-
-        let logLevelInput = new Gtk.SpinButton({
+        settings.bind(
+            'suppress-activation-when-fullscreen',
+            suppressWhenFullscreenRow,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        behaviorGroup.add(suppressWhenFullscreenRow);
+        
+        const loggingGroup = new Adw.PreferencesGroup({
+            title: 'Logging'
+        });
+        page.add(loggingGroup);
+        
+        // min-log-level
+        const logLevelRow = new Adw.SpinRow({
+            title: 'Log Level',
             adjustment: new Gtk.Adjustment({
                 lower: 0,
                 upper: 4,
                 step_increment: 1,
             }),
-            halign: Gtk.Align.END,
-            hexpand: true,
-            visible: true
         });
-        prefsWidget.attach(logLevelInput, 1, 4, 1, 1);
-
-        prefsWidget._settings.bind(
+        settings.bind(
             'min-log-level',
-            logLevelInput,
+            logLevelRow,
             'value',
             Gio.SettingsBindFlags.DEFAULT
-        );    
-        
-
-        return prefsWidget;
+        );
+        loggingGroup.add(logLevelRow);
     }
 }
 
