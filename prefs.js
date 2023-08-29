@@ -17,7 +17,7 @@
  */
  
 import Gio from 'gi://Gio';
-import Gtk from 'gi://Gtk?version=4.0';
+import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
