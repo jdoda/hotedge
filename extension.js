@@ -147,7 +147,7 @@ class HotEdge extends Clutter.Actor {
             size = this._monitor.width * this._edgeSize
             let x_offset = (this._monitor.width - size) / 2
             console.debug(LOG_PREFIX + 'Setting barrier size to %d', size);
-            this._barrier = new Meta.Barrier({ display: global.display,
+            this._barrier = new Meta.Barrier({ backend: global.backend,
                                                        x1: this._x + x_offset, x2: this._x + x_offset + size, 
                                                        y1: this._y, y2: this._y,
                                                        directions: Meta.BarrierDirection.NEGATIVE_Y });
@@ -156,7 +156,8 @@ class HotEdge extends Clutter.Actor {
     }
 
     _setupFallbackEdgeIfNeeded(layoutManager) {
-        if (!global.display.supports_extended_barriers()) {
+        const {capabilities} = global.backend;
+        if ((capabilities & Meta.BackendCapabilities.BARRIERS) === 0) {
             console.warn(LOG_PREFIX + 'Display does not support extended barriers, using fallback path.');
             this._settings.set_boolean('fallback-in-use', true);
             
