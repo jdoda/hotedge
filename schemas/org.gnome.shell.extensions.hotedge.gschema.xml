@@ -15,19 +15,23 @@
       <default>100</default>
     </key>
     <key name="min-log-level" type="u">
-      <summary>Log statements with a level below this value are not logged.</summary>
+      <summary>**DEPRECATED** Log statements with a level below this value are not logged.</summary>
       <default>1</default>
     </key>
     <key name="suppress-activation-when-button-held" type="b">
-      <summary>If set to true, then when a mouse button is held down don't activate the overview.</summary>
+      <summary>Don't activate the overview when a mouse button is held down.</summary>
       <default>true</default>
     </key>
     <key name="suppress-activation-when-fullscreen" type="b">
-      <summary>If set to true, it won't activate the overview if a fullscreen window is focused.</summary>
+      <summary>Don't activate the overview if a fullscreen window is focused.</summary>
       <default>true</default>
     </key>
     <key name="fallback-in-use" type="b">
       <summary>Set by the extension, indicates whether or not the time-based activation fallback method is in use.</summary>
+      <default>false</default>
+    </key>
+    <key name="primary-monitor-only" type="b">
+      <summary>Only place a hot edge on the primary monitor.</summary>
       <default>false</default>
     </key>
   </schema>

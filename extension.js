@@ -72,6 +72,11 @@ export default class HotEdgeExtension extends Extension {
         
         // build new hot edges
         for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
+            if (this._settings.get_boolean('primary-monitor-only') && i != Main.layoutManager.primaryIndex) {
+                console.debug(LOG_PREFIX + 'primary-monitor-only is true and monitor %d is not the primary, not adding a hot edge.', i);
+                continue;
+            }
+        
             let monitor = Main.layoutManager.monitors[i];
             let leftX = monitor.x;
             let rightX = monitor.x + monitor.width;

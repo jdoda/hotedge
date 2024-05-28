@@ -119,6 +119,18 @@ export default class HotEdgePreferences extends ExtensionPreferences {
             Gio.SettingsBindFlags.DEFAULT
         );
         behaviorGroup.add(suppressWhenFullscreenRow);
+        
+        // primary-monitor-only
+        const primaryMonitorOnlyRow = new Adw.SwitchRow({
+            title: "Hot edge only on the primary monitor"
+        });
+        settings.bind(
+            'primary-monitor-only',
+            primaryMonitorOnlyRow,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        behaviorGroup.add(primaryMonitorOnlyRow);
     }
 }
 
