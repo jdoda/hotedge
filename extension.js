@@ -25,6 +25,7 @@ import Shell from 'gi://Shell';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Layout from 'resource:///org/gnome/shell/ui/layout.js'
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Ripples from 'resource:///org/gnome/shell/ui/ripples.js';
 
 
 const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
@@ -137,6 +138,8 @@ class HotEdge extends Clutter.Actor {
                                                     Shell.ActionMode.NORMAL |
                                                     Shell.ActionMode.OVERVIEW);
         this._pressureBarrier.connect('trigger', this._toggleOverview.bind(this));
+        this._ripples = new Ripples.Ripples(0.5, 0.5, 'ripple-centered');
+        this._ripples.addTo(layoutManager.uiGroup);
 
         this.connect('destroy', this._onDestroy.bind(this));
     }
@@ -188,6 +191,7 @@ class HotEdge extends Clutter.Actor {
         this.setBarrierSize(0);
         this._pressureBarrier.destroy();
         this._pressureBarrier = null;
+        this._ripples.destroy();
     }
 
     _toggleOverview() {
@@ -200,6 +204,8 @@ class HotEdge extends Clutter.Actor {
 
         if (Main.overview.shouldToggleByCornerOrButton()) {
             Main.overview.toggle();
+            if (Main.overview.animationInProgress)
+                this._ripples.playAnimation(global.get_pointer()[0], this._y);
         }
     }
 
