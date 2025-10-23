@@ -34,6 +34,9 @@
       <summary>Only place a hot edge on the primary monitor.</summary>
       <default>false</default>
     </key>
+    <key name="show-animation" type="b">
+      <summary>Show animation when hot edge is activated.</summary>
+      <default>true</default>
+    </key>
   </schema>
 </schemalist>
-

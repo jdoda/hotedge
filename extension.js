@@ -129,6 +129,7 @@ const HotEdge = GObject.registerClass(
             this._edgeSize = this._settings.get_uint("edge-size") / 100;
             this._suppressActivationWhenButtonHeld = this._settings.get_boolean("suppress-activation-when-button-held");
             this._suppressActivationWhenFullscreen = this._settings.get_boolean("suppress-activation-when-fullscreen");
+            this._showAnimation = this._settings.get_boolean("show-animation");
 
             this._setupFallbackEdgeIfNeeded(layoutManager);
 
@@ -208,7 +209,9 @@ const HotEdge = GObject.registerClass(
 
             if (Main.overview.shouldToggleByCornerOrButton()) {
                 Main.overview.toggle();
-                if (Main.overview.animationInProgress) this._ripples.playAnimation(global.get_pointer()[0], this._y);
+                if (this._showAnimation && Main.overview.animationInProgress) {
+                    this._ripples.playAnimation(global.get_pointer()[0], this._y);
+                }
             }
         }
 
