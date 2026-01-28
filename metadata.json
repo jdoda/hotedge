@@ -1,9 +1,9 @@
 {
-  "name": "Hot Edge",
-  "description": "Add a hot edge that activates the overview to the bottom of the screen. This provides a better mouse-based workflow and can be an alternative to a dock.",
-  "uuid": "hotedge@jonathan.jdoda.ca",
-  "version": 27,
-  "shell-version": ["45", "46", "47", "48", "49"],
-  "url": "https://github.com/jdoda/hotedge",
-  "settings-schema": "org.gnome.shell.extensions.hotedge"
+    "name": "Hot Edge",
+    "description": "Add a hot edge that activates the overview to the bottom of the screen. This provides a better mouse-based workflow and can be an alternative to a dock.",
+    "uuid": "hotedge@jonathan.jdoda.ca",
+    "version": 27,
+    "shell-version": ["45", "46", "47", "48", "49", "50"],
+    "url": "https://github.com/jdoda/hotedge",
+    "settings-schema": "org.gnome.shell.extensions.hotedge"
 }
