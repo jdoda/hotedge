@@ -31,245 +31,245 @@ const HOT_EDGE_PRESSURE_TIMEOUT = 1000; // ms
 const LOG_PREFIX = "HotEdge | ";
 
 export default class HotEdgeExtension extends Extension {
-	constructor(metadata) {
-		super(metadata);
+    constructor(metadata) {
+        super(metadata);
 
-		this._edgeHandlerId = null;
-		this._settingsHandlerId = null;
-		this._settings = null;
-	}
+        this._edgeHandlerId = null;
+        this._settingsHandlerId = null;
+        this._settings = null;
+    }
 
-	enable() {
-		this._settings = this.getSettings();
-		this._settingsHandlerId = this._settings.connect("changed", this._onSettingsChange.bind(this));
-		this._edgeHandlerId = Main.layoutManager.connect("hot-corners-changed", this._updateHotEdges.bind(this));
+    enable() {
+        this._settings = this.getSettings();
+        this._settingsHandlerId = this._settings.connect("changed", this._onSettingsChange.bind(this));
+        this._edgeHandlerId = Main.layoutManager.connect("hot-corners-changed", this._updateHotEdges.bind(this));
 
-		Main.layoutManager._updateHotCorners();
-	}
+        Main.layoutManager._updateHotCorners();
+    }
 
-	disable() {
-		Main.layoutManager.disconnect(this._edgeHandlerId);
-		this._settings.disconnect(this._settingsHandlerId);
-		this._settings = null;
+    disable() {
+        Main.layoutManager.disconnect(this._edgeHandlerId);
+        this._settings.disconnect(this._settingsHandlerId);
+        this._settings = null;
 
-		Main.layoutManager._updateHotCorners();
-	}
+        Main.layoutManager._updateHotCorners();
+    }
 
-	_onSettingsChange() {
-		Main.layoutManager._updateHotCorners();
-	}
+    _onSettingsChange() {
+        Main.layoutManager._updateHotCorners();
+    }
 
-	_updateHotEdges() {
-		console.info(LOG_PREFIX + "Updating hot edges.");
-		let pressureThreshold = this._settings.get_uint("pressure-threshold");
-		let fallbackTimeout = this._settings.get_uint("fallback-timeout");
-		let edgeSize = this._settings.get_uint("edge-size") / 100;
-		console.debug(LOG_PREFIX + "pressureThreshold %d", pressureThreshold);
-		console.debug(LOG_PREFIX + "fallbackTimeout %d", fallbackTimeout);
-		console.debug(LOG_PREFIX + "edgeSize %d%", edgeSize * 100);
+    _updateHotEdges() {
+        console.info(LOG_PREFIX + "Updating hot edges.");
+        let pressureThreshold = this._settings.get_uint("pressure-threshold");
+        let fallbackTimeout = this._settings.get_uint("fallback-timeout");
+        let edgeSize = this._settings.get_uint("edge-size") / 100;
+        console.debug(LOG_PREFIX + "pressureThreshold %d", pressureThreshold);
+        console.debug(LOG_PREFIX + "fallbackTimeout %d", fallbackTimeout);
+        console.debug(LOG_PREFIX + "edgeSize %d%", edgeSize * 100);
 
-		// build new hot edges
-		for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-			if (this._settings.get_boolean("primary-monitor-only") && i != Main.layoutManager.primaryIndex) {
-				console.debug(
-					LOG_PREFIX +
-						"primary-monitor-only is true and monitor %d is not the primary, not adding hot edges.",
-					i,
-				);
-				continue;
-			}
+        // build new hot edges
+        for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
+            if (this._settings.get_boolean("primary-monitor-only") && i != Main.layoutManager.primaryIndex) {
+                console.debug(
+                    LOG_PREFIX +
+                        "primary-monitor-only is true and monitor %d is not the primary, not adding hot edges.",
+                    i,
+                );
+                continue;
+            }
 
-			let monitor = Main.layoutManager.monitors[i];
-			let leftX = monitor.x;
-			let rightX = monitor.x + monitor.width;
-			let topY = monitor.y;
-			let bottomY = monitor.y + monitor.height;
-			let size = monitor.width;
+            let monitor = Main.layoutManager.monitors[i];
+            let leftX = monitor.x;
+            let rightX = monitor.x + monitor.width;
+            let topY = monitor.y;
+            let bottomY = monitor.y + monitor.height;
+            let size = monitor.width;
 
-			let haveTop = true;
-			let haveBottom = true;
+            let haveTop = true;
+            let haveBottom = true;
 
-			// check for adjacent monitors above or below
-			for (let j = 0; j < Main.layoutManager.monitors.length; j++) {
-				if (i == j) {
-					continue;
-				}
-				let otherMonitor = Main.layoutManager.monitors[j];
-				let otherLeftX = otherMonitor.x;
-				let otherRightX = otherMonitor.x + otherMonitor.width;
-				let otherTopY = otherMonitor.y;
-				let otherBottomY = otherMonitor.y + otherMonitor.height;
+            // check for adjacent monitors above or below
+            for (let j = 0; j < Main.layoutManager.monitors.length; j++) {
+                if (i == j) {
+                    continue;
+                }
+                let otherMonitor = Main.layoutManager.monitors[j];
+                let otherLeftX = otherMonitor.x;
+                let otherRightX = otherMonitor.x + otherMonitor.width;
+                let otherTopY = otherMonitor.y;
+                let otherBottomY = otherMonitor.y + otherMonitor.height;
 
-				// check if another monitor is directly below
-				if (otherTopY >= bottomY && otherLeftX < rightX && otherRightX > leftX) {
-					haveBottom = false;
-				}
+                // check if another monitor is directly below
+                if (otherTopY >= bottomY && otherLeftX < rightX && otherRightX > leftX) {
+                    haveBottom = false;
+                }
 
-				// check if another monitor is directly above
-				if (otherBottomY <= topY && otherLeftX < rightX && otherRightX > leftX) {
-					haveTop = false;
-				}
-			}
+                // check if another monitor is directly above
+                if (otherBottomY <= topY && otherLeftX < rightX && otherRightX > leftX) {
+                    haveTop = false;
+                }
+            }
 
-			// add bottom edge if clear
-			if (haveBottom) {
-				console.debug(LOG_PREFIX + "Monitor %d has a bottom, adding a bottom hot edge.", i);
-				let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, false, this._settings);
-				edge.setBarrierSize(size);
-				Main.layoutManager.hotCorners.push(edge);
-			}
+            // add bottom edge if clear
+            if (haveBottom) {
+                console.debug(LOG_PREFIX + "Monitor %d has a bottom, adding a bottom hot edge.", i);
+                let edge = new HotEdge(Main.layoutManager, monitor, leftX, bottomY, false, this._settings);
+                edge.setBarrierSize(size);
+                Main.layoutManager.hotCorners.push(edge);
+            }
 
-			// add top edge if clear
-			if (haveTop) {
-				console.debug(LOG_PREFIX + "Monitor %d has a top, adding a top hot edge.", i);
-				let edge = new HotEdge(Main.layoutManager, monitor, leftX, topY, true, this._settings);
-				edge.setBarrierSize(size);
-				Main.layoutManager.hotCorners.push(edge);
-			}
+            // add top edge if clear
+            if (haveTop) {
+                console.debug(LOG_PREFIX + "Monitor %d has a top, adding a top hot edge.", i);
+                let edge = new HotEdge(Main.layoutManager, monitor, leftX, topY, true, this._settings);
+                edge.setBarrierSize(size);
+                Main.layoutManager.hotCorners.push(edge);
+            }
 
-			if (!haveBottom && !haveTop) {
-				console.debug(LOG_PREFIX + "Monitor %d does not have accessible edges, not adding hot edges.", i);
-				Main.layoutManager.hotCorners.push(null);
-			}
-		}
-	}
+            if (!haveBottom && !haveTop) {
+                console.debug(LOG_PREFIX + "Monitor %d does not have accessible edges, not adding hot edges.", i);
+                Main.layoutManager.hotCorners.push(null);
+            }
+        }
+    }
 }
 
 const HotEdge = GObject.registerClass(
-	class HotEdge extends Clutter.Actor {
-		_init(layoutManager, monitor, x, y, isTopEdge, settings) {
-			console.debug(LOG_PREFIX + "Creating hot edge x: %d y: %d (isTop: %s)", x, y, isTopEdge);
-			super._init();
+    class HotEdge extends Clutter.Actor {
+        _init(layoutManager, monitor, x, y, isTopEdge, settings) {
+            console.debug(LOG_PREFIX + "Creating hot edge x: %d y: %d (isTop: %s)", x, y, isTopEdge);
+            super._init();
 
-			this._monitor = monitor;
-			this._x = x;
-			this._y = y;
-			this._isTopEdge = isTopEdge;
-			this._settings = settings;
-			this._fallbackTimeout = this._settings.get_uint("fallback-timeout");
-			this._edgeSize = this._settings.get_uint("edge-size") / 100;
+            this._monitor = monitor;
+            this._x = x;
+            this._y = y;
+            this._isTopEdge = isTopEdge;
+            this._settings = settings;
+            this._fallbackTimeout = this._settings.get_uint("fallback-timeout");
+            this._edgeSize = this._settings.get_uint("edge-size") / 100;
 
-			this._suppressActivationWhenButtonHeld = this._settings.get_boolean("suppress-activation-when-button-held");
-			this._ignoredButtons = [
-				Clutter.ModifierType.BUTTON1_MASK,
-				Clutter.ModifierType.BUTTON2_MASK,
-				Clutter.ModifierType.BUTTON3_MASK,
-			];
+            this._suppressActivationWhenButtonHeld = this._settings.get_boolean("suppress-activation-when-button-held");
+            this._ignoredButtons = [
+                Clutter.ModifierType.BUTTON1_MASK,
+                Clutter.ModifierType.BUTTON2_MASK,
+                Clutter.ModifierType.BUTTON3_MASK,
+            ];
 
-			this._suppressActivationWhenFullscreen = this._settings.get_boolean("suppress-activation-when-fullscreen");
-			this._showAnimation = this._settings.get_boolean("show-animation");
+            this._suppressActivationWhenFullscreen = this._settings.get_boolean("suppress-activation-when-fullscreen");
+            this._showAnimation = this._settings.get_boolean("show-animation");
 
-			this._setupFallbackEdgeIfNeeded(layoutManager);
+            this._setupFallbackEdgeIfNeeded(layoutManager);
 
-			let pressureThreshold = this._settings.get_uint("pressure-threshold");
-			this._pressureBarrier = new Layout.PressureBarrier(
-				pressureThreshold,
-				HOT_EDGE_PRESSURE_TIMEOUT,
-				Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
-			);
-			this._pressureBarrier.connect("trigger", this._toggleOverview.bind(this));
-			this._ripples = new Ripples.Ripples(0.5, 0.5, "ripple-centered");
-			this._ripples.addTo(layoutManager.uiGroup);
+            let pressureThreshold = this._settings.get_uint("pressure-threshold");
+            this._pressureBarrier = new Layout.PressureBarrier(
+                pressureThreshold,
+                HOT_EDGE_PRESSURE_TIMEOUT,
+                Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
+            );
+            this._pressureBarrier.connect("trigger", this._toggleOverview.bind(this));
+            this._ripples = new Ripples.Ripples(0.5, 0.5, "ripple-centered");
+            this._ripples.addTo(layoutManager.uiGroup);
 
-			this.connect("destroy", this._onDestroy.bind(this));
-		}
+            this.connect("destroy", this._onDestroy.bind(this));
+        }
 
-		setBarrierSize(size) {
-			if (this._barrier) {
-				this._pressureBarrier.removeBarrier(this._barrier);
-				this._barrier.destroy();
-				this._barrier = null;
-			}
+        setBarrierSize(size) {
+            if (this._barrier) {
+                this._pressureBarrier.removeBarrier(this._barrier);
+                this._barrier.destroy();
+                this._barrier = null;
+            }
 
-			if (size > 0) {
-				size = this._monitor.width * this._edgeSize;
-				let x_offset = (this._monitor.width - size) / 2;
-				console.debug(LOG_PREFIX + "Setting barrier size to %d", size);
+            if (size > 0) {
+                size = this._monitor.width * this._edgeSize;
+                let x_offset = (this._monitor.width - size) / 2;
+                console.debug(LOG_PREFIX + "Setting barrier size to %d", size);
 
-				// positive_y means cursor is moving UP into top edge
-				// negative_y means cursor is moving DOWN into bottom edge
-				let direction = this._isTopEdge
-					? Meta.BarrierDirection.POSITIVE_Y
-					: Meta.BarrierDirection.NEGATIVE_Y;
+                // positive_y means cursor is moving UP into top edge
+                // negative_y means cursor is moving DOWN into bottom edge
+                let direction = this._isTopEdge
+                    ? Meta.BarrierDirection.POSITIVE_Y
+                    : Meta.BarrierDirection.NEGATIVE_Y;
 
-				this._barrier = new Meta.Barrier({
-					backend: global.backend,
-					x1: this._x + x_offset,
-					x2: this._x + x_offset + size,
-					y1: this._y,
-					y2: this._y,
-					directions: direction,
-				});
-				this._pressureBarrier.addBarrier(this._barrier);
-			}
-		}
+                this._barrier = new Meta.Barrier({
+                    backend: global.backend,
+                    x1: this._x + x_offset,
+                    x2: this._x + x_offset + size,
+                    y1: this._y,
+                    y2: this._y,
+                    directions: direction,
+                });
+                this._pressureBarrier.addBarrier(this._barrier);
+            }
+        }
 
-		_setupFallbackEdgeIfNeeded(layoutManager) {
-			const { capabilities } = global.backend;
-			if ((capabilities & Meta.BackendCapabilities.BARRIERS) === 0) {
-				console.warn(LOG_PREFIX + "Display does not support extended barriers, using fallback path.");
-				this._settings.set_boolean("fallback-in-use", true);
+        _setupFallbackEdgeIfNeeded(layoutManager) {
+            const { capabilities } = global.backend;
+            if ((capabilities & Meta.BackendCapabilities.BARRIERS) === 0) {
+                console.warn(LOG_PREFIX + "Display does not support extended barriers, using fallback path.");
+                this._settings.set_boolean("fallback-in-use", true);
 
-				let size = this._monitor.width * this._edgeSize;
-				let x_offset = (this._monitor.width - size) / 2;
-				let fallbackY = this._isTopEdge ? this._y : this._y - 1;
+                let size = this._monitor.width * this._edgeSize;
+                let x_offset = (this._monitor.width - size) / 2;
+                let fallbackY = this._isTopEdge ? this._y : this._y - 1;
 
-				this.set({
-					name: "hot-edge",
-					x: this._x + x_offset,
-					y: fallbackY,
-					width: size,
-					height: 1,
-					reactive: true,
-					_timeoutId: null,
-				});
-				layoutManager.addChrome(this);
-			} else {
+                this.set({
+                    name: "hot-edge",
+                    x: this._x + x_offset,
+                    y: fallbackY,
+                    width: size,
+                    height: 1,
+                    reactive: true,
+                    _timeoutId: null,
+                });
+                layoutManager.addChrome(this);
+            } else {
 				this._settings.set_boolean("fallback-in-use", false);
-			}
-		}
+            }
+        }
 
-		_onDestroy() {
-			this.setBarrierSize(0);
-			this._pressureBarrier.destroy();
-			this._pressureBarrier = null;
-			this._ripples.destroy();
-		}
+        _onDestroy() {
+            this.setBarrierSize(0);
+            this._pressureBarrier.destroy();
+            this._pressureBarrier = null;
+            this._ripples.destroy();
+        }
 
-		_toggleOverview() {
-			if (this._suppressActivationWhenButtonHeld) {
-				let buttonHeld = this._ignoredButtons.some(button => (global.get_pointer()[2] & button) !== 0);
-				if (buttonHeld) {
-					return;
-				}
-			}
+        _toggleOverview() {
+            if (this._suppressActivationWhenButtonHeld) {
+                let buttonHeld = this._ignoredButtons.some(button => (global.get_pointer()[2] & button) !== 0);
+                if (buttonHeld) {
+                    return;
+                }
+            }
 
-			if (this._suppressActivationWhenFullscreen && this._monitor.inFullscreen && !Main.overview.visible) return;
+            if (this._suppressActivationWhenFullscreen && this._monitor.inFullscreen && !Main.overview.visible) return;
 
-			if (Main.overview.shouldToggleByCornerOrButton()) {
-				Main.overview.toggle();
-				if (this._showAnimation && Main.overview.animationInProgress) {
-					this._ripples.playAnimation(global.get_pointer()[0], this._y);
-				}
-			}
-		}
+            if (Main.overview.shouldToggleByCornerOrButton()) {
+                Main.overview.toggle();
+                if (this._showAnimation && Main.overview.animationInProgress) {
+                    this._ripples.playAnimation(global.get_pointer()[0], this._y);
+                }
+            }
+        }
 
-		vfunc_enter_event(crossingEvent) {
-			if (!this._timeoutId) {
-				this._timeoutId = GLib.timeout_add(GLib.PRIORITY_HIGH, this._fallbackTimeout, () => {
-					this._toggleOverview();
-					return GLib.SOURCE_REMOVE;
-				});
-			}
-			return Clutter.EVENT_PROPAGATE;
-		}
+        vfunc_enter_event(crossingEvent) {
+            if (!this._timeoutId) {
+                this._timeoutId = GLib.timeout_add(GLib.PRIORITY_HIGH, this._fallbackTimeout, () => {
+                    this._toggleOverview();
+                    return GLib.SOURCE_REMOVE;
+                });
+            }
+            return Clutter.EVENT_PROPAGATE;
+        }
 
-		vfunc_leave_event(crossingEvent) {
-			if (this._timeoutId) {
-				GLib.Source.remove(this._timeoutId);
-				this._timeoutId = null;
-			}
-			return Clutter.EVENT_PROPAGATE;
-		}
-	},
+        vfunc_leave_event(crossingEvent) {
+            if (this._timeoutId) {
+                GLib.Source.remove(this._timeoutId);
+                this._timeoutId = null;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        }
+    },
 );
