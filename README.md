@@ -34,7 +34,7 @@ make install
 
 ## Configuration
 
-Hot Edge does not disable the existing hot-corner. The hot-corner can be disabled using the GNOME Tweaks tool, using the setting **Top Bar > Activities Overview Hot Corner**.
+Hot Edge does not disable the existing hot-corner. The hot-corner can be disabled using **GNOME Settings > Multitasking > Hot Corner**.
 
 Hot Edge exposes two settings that alter its sensitivity : `pressure-threshold` and `fallback-timeout`. Only one of these settings is active at a time, depending on whether your system supports pressure barriers or has to use the timeout based fallback code. The preferences dialog will always show setting that is currently in use.
 
