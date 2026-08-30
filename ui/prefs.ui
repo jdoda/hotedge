@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="AdwPreferencesPage" id="preferences_main_page">
+    <property name="title" translatable="yes">General</property>
+    <property name="icon-name">dialog-information-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="yes">Position</property>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Edge Size</property>
+            <property name="activatable-widget">edge_size_spin_button</property>
+            <style>
+              <class name="spin"/>
+            </style>
+            <child type="suffix">
+              <object class="GtkBox">
+                <property name="orientation">0</property>
+                <child>
+                  <object class="GtkButton" id="edge_size_reset_button">
+                    <property name="icon-name">view-refresh-symbolic</property>
+                    <property name="tooltip-text" translatable="yes">Reset to default</property>
+                    <property name="valign">3</property>
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">false</property>
+                    <style>
+                      <class name="flat"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="edge_size_spin_button">
+                    <property name="adjustment">
+                      <object class="GtkAdjustment">
+                        <property name="lower">1</property>
+                        <property name="upper">100</property>
+                        <property name="step-increment">10</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">%</property>
+                    <property name="width-chars">4</property>
+                    <property name="xalign">1</property>
+                    <property name="justify">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="primary_monitor_only_switch">
+            <property name="title" translatable="yes">Only on Primary Monitor</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="yes">Behavior</property>
+        <child>
+          <object class="AdwActionRow" id="timeout_row">
+            <property name="title" translatable="yes">Activation Timeout</property>
+            <property name="activatable-widget">timeout_spin_button</property>
+            <style>
+              <class name="spin"/>
+            </style>
+            <child type="suffix">
+              <object class="GtkBox">
+                <property name="orientation">0</property>
+                <child>
+                  <object class="GtkButton" id="timeout_reset_button">
+                    <property name="icon-name">view-refresh-symbolic</property>
+                    <property name="tooltip-text" translatable="yes">Reset to default</property>
+                    <property name="valign">3</property>
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">false</property>
+                    <style>
+                      <class name="flat"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="timeout_spin_button">
+                    <property name="adjustment">
+                      <object class="GtkAdjustment">
+                        <property name="lower">1</property>
+                        <property name="upper">1000</property>
+                        <property name="step-increment">50</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">ms</property>
+                    <property name="width-chars">4</property>
+                    <property name="xalign">1</property>
+                    <property name="justify">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="pressure_row">
+            <property name="title" translatable="yes">Activation Pressure</property>
+            <property name="activatable-widget">pressure_spin_button</property>
+            <style>
+              <class name="spin"/>
+            </style>
+            <child type="suffix">
+              <object class="GtkBox">
+                <property name="orientation">0</property>
+                <child>
+                  <object class="GtkButton" id="pressure_reset_button">
+                    <property name="icon-name">view-refresh-symbolic</property>
+                    <property name="tooltip-text" translatable="yes">Reset to default</property>
+                    <property name="valign">3</property>
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">false</property>
+                    <style>
+                      <class name="flat"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="pressure_spin_button">
+                    <property name="adjustment">
+                      <object class="GtkAdjustment">
+                        <property name="lower">0</property>
+                        <property name="upper">500</property>
+                        <property name="step-increment">25</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">px</property>
+                    <property name="width-chars">4</property>
+                    <property name="xalign">1</property>
+                    <property name="justify">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="suppress_on_mouse_switch">
+            <property name="title" translatable="yes">Suppress on Mouse Button</property>
+            <property name="subtitle" translatable="yes">Don't activate overview while a mouse button is held</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="suppress_on_fullscreen_switch">
+            <property name="title" translatable="yes">Suppress on Fullscreen</property>
+            <property name="subtitle" translatable="yes">Don't activate overview while an application is displayed in fullscreen mode</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="yes">Appearance</property>
+        <child>
+          <object class="AdwSwitchRow" id="show_animation_switch">
+            <property name="title" translatable="yes">Show Ripple Animation when Activated</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

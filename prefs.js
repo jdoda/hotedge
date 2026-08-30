@@ -26,96 +26,84 @@ export default class HotEdgePreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
 
-        const page = new Adw.PreferencesPage({
-            title: "General",
-            icon_name: "dialog-information-symbolic",
-        });
+        const builder = new Gtk.Builder();
+        const uiFilePath = this.path.concat("/ui/prefs.ui");
+        builder.add_from_file(uiFilePath);
+
+        const page = builder.get_object("preferences_main_page");
         window.add(page);
 
-        const behaviorGroup = new Adw.PreferencesGroup({
-            title: "Behavior",
-        });
-        page.add(behaviorGroup);
-
-        if (settings.get_boolean("fallback-in-use")) {
-            // fallback-timeout
-            const timeoutRow = new Adw.SpinRow({
-                title: "Activation Timeout",
-                subtitle: "milliseconds",
-                adjustment: new Gtk.Adjustment({
-                    lower: 0,
-                    upper: 1000,
-                    step_increment: 50,
-                }),
-            });
-            settings.bind("fallback-timeout", timeoutRow, "value", Gio.SettingsBindFlags.DEFAULT);
-            behaviorGroup.add(timeoutRow);
-        } else {
-            // pressure-threshold
-            const pressureRow = new Adw.SpinRow({
-                title: "Activation Pressure",
-                subtitle: "pixels",
-                adjustment: new Gtk.Adjustment({
-                    lower: 0,
-                    upper: 500,
-                    step_increment: 25,
-                }),
-            });
-            settings.bind("pressure-threshold", pressureRow, "value", Gio.SettingsBindFlags.DEFAULT);
-            behaviorGroup.add(pressureRow);
-        }
-
-        // edge-size
-        const edgeSizeRow = new Adw.SpinRow({
-            title: "Edge Size",
-            subtitle: "% of display width",
-            adjustment: new Gtk.Adjustment({
-                lower: 1,
-                upper: 100,
-                step_increment: 10,
-            }),
-        });
-        settings.bind("edge-size", edgeSizeRow, "value", Gio.SettingsBindFlags.DEFAULT);
-        behaviorGroup.add(edgeSizeRow);
-
-        // suppress-activation-when-button-held
-        const suppressWhenButtonHeldRow = new Adw.SwitchRow({
-            title: "Suppress on mouse button",
-            subtitle: "Don't activate overview while a mouse button is held",
-        });
-        settings.bind(
-            "suppress-activation-when-button-held",
-            suppressWhenButtonHeldRow,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT,
-        );
-        behaviorGroup.add(suppressWhenButtonHeldRow);
-
-        // suppress-activation-when-fullscreen
-        const suppressWhenFullscreenRow = new Adw.SwitchRow({
-            title: "Suppress on fullscreen",
-            subtitle: "Don't activate overview while an application is displayed in fullscreen mode",
-        });
-        settings.bind(
-            "suppress-activation-when-fullscreen",
-            suppressWhenFullscreenRow,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT,
-        );
-        behaviorGroup.add(suppressWhenFullscreenRow);
-
-        // primary-monitor-only
-        const primaryMonitorOnlyRow = new Adw.SwitchRow({
-            title: "Hot edge only on the primary monitor",
-        });
-        settings.bind("primary-monitor-only", primaryMonitorOnlyRow, "active", Gio.SettingsBindFlags.DEFAULT);
-        behaviorGroup.add(primaryMonitorOnlyRow);
-
-        // show-animation
-        const showAnimationRow = new Adw.SwitchRow({
-            title: "Show animation when hot edge is activated",
-        });
-        settings.bind("show-animation", showAnimationRow, "active", Gio.SettingsBindFlags.DEFAULT);
-        behaviorGroup.add(showAnimationRow);
+        this.bindSettings(builder, settings);
     }
+
+    bindSettings(builder, settings) {
+        // Position
+        settings.bind("edge-size",
+            builder.get_object("edge_size_spin_button"),
+            "value",
+            Gio.SettingsBindFlags.DEFAULT);
+        this.connectResetButton("edge-size",
+            builder.get_object("edge_size_reset_button"),
+            settings);
+        settings.bind("primary-monitor-only",
+            builder.get_object("primary_monitor_only_switch"),
+            "active",
+            Gio.SettingsBindFlags.DEFAULT);
+
+        // Behavior
+        settings.bind("fallback-timeout",
+            builder.get_object("timeout_spin_button"),
+            "value",
+            Gio.SettingsBindFlags.DEFAULT);
+        this.connectResetButton("fallback-timeout",
+            builder.get_object("timeout_reset_button"),
+            settings);
+        settings.bind("pressure-threshold",
+            builder.get_object("pressure_spin_button"),
+            "value",
+            Gio.SettingsBindFlags.DEFAULT);
+        this.connectResetButton("pressure-threshold",
+            builder.get_object("pressure_reset_button"),
+            settings);
+        settings.bind("suppress-activation-when-button-held",
+            builder.get_object("suppress_on_mouse_switch"),
+            "active",
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind("suppress-activation-when-fullscreen",
+            builder.get_object("suppress_on_fullscreen_switch"),
+            "active",
+            Gio.SettingsBindFlags.DEFAULT);
+
+        // Decide whether to show timeout or pressure
+        const fallbackInUse = settings.get_boolean("fallback-in-use");
+        const timeoutRow = builder.get_object("timeout_row");
+        timeoutRow.connect("map", () => {
+            timeoutRow.visible = fallbackInUse;
+        });
+        const pressureRow = builder.get_object("pressure_row");
+        pressureRow.connect("map", () => {
+            pressureRow.visible = !fallbackInUse;
+        });
+
+        // Appearance
+        settings.bind("show-animation",
+            builder.get_object("show_animation_switch"),
+            "active",
+            Gio.SettingsBindFlags.DEFAULT);
+    }
+
+    connectResetButton(preferenceKey, button, settings) {
+        button.connect("clicked", () => {
+            settings.reset(preferenceKey);
+        });
+        button.connect("map", () => {
+            button.visible =
+                settings.get_uint(preferenceKey) != settings.get_default_value(preferenceKey).get_uint32();
+        });
+        settings.connect("changed::".concat(preferenceKey), () => {
+            button.visible =
+                settings.get_uint(preferenceKey) != settings.get_default_value(preferenceKey).get_uint32();
+        });
+    }
+
 }
